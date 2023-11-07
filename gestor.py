@@ -1,3 +1,4 @@
+from gestor_2 import *
 from tkinter import *
 from tkinter import messagebox as mb
 from Connexion_DB import *
@@ -29,7 +30,7 @@ def login():
     bs.cursor.execute("SELECT * FROM usuarios WHERE Id = ? AND contrasenna = ? ",(id,contra))
     if bs.cursor.fetchall():
         mb.showinfo("Acceso Admitido", "Acaba de Ingresar al Gestor.")
-
+        Crud_General(ventana)
     else:
         mb.showerror("ERROR","Datos no encontrados")
 #-------------------------------------

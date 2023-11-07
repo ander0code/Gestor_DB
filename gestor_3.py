@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import messagebox as mb
 from Connexion_DB import *
 class Crud_Provedores:
-    def __init__(self, ventana):
-        self.ventana = ventana
+    def __init__(self,ventana):
+        self.ventana = Toplevel(ventana)
         self.ventana.geometry("230x200+850+300")
         self.ventana.title("BackPack")
         self.ventana.resizable(False, False)
@@ -12,25 +12,46 @@ class Crud_Provedores:
 
         self.crear_interfaz()
 
+    def agregar_proveedor(self):
+        id = self.textadd_id.get()
+        nombre = self.textadd_nombre.get()
+        telefono = self.textadd_telefono.get()
+        empresa = self.textadd_empresa.get()
 
+        try:
+            self.bs.cursor.execute(
+                "INSERT INTO Proveedores (idProveedor, nombre, numero_telefono, empresa) VALUES (?, ?, ?, ?)",
+                (id, nombre, telefono, empresa))
+            self.bs.conexion.commit()
+            mb.showinfo("Éxito", "Proveedor agregado con éxito.")
+        except sqlite3.Error as e:
+            mb.showerror("Error", "Error al agregar el proveedor: " + str(e))
+
+    def actualizar(self):
+        pantallaN = Toplevel(self.ventana)
+        pantallaN.geometry("300x400+850+250")
+
+    def eliminar(self):
+        pantallaN = Toplevel(self.ventana)
+        pantallaN.geometry("300x400+850+250")
     def crear_interfaz(self):
-        texto = Label(text="CRUD PROVEEDOR")
+        texto = Label(self.ventana,text="CRUD PROVEEDOR")
         texto.config(font=("Ariel", 10, "bold"))
         texto.pack()
 
         # ----------------------------------------------------------
 
-        agregarBoton = Button(text="Agregar Proveedor", font=("Ariel", 8, "bold"), command=self.agregar)
+        agregarBoton = Button(self.ventana,text="Agregar Proveedor", font=("Ariel", 8, "bold"), command=self.agregar)
         agregarBoton.place(x=40, y=30, width=150, height=30)
 
         # ----------------------------------------------------------
 
-        actuBoton = Button(text="Actualizar Proveedor", font=("Ariel", 8, "bold"), command=self.actualizar)
+        actuBoton = Button(self.ventana,text="Actualizar Proveedor", font=("Ariel", 8, "bold"), command=self.actualizar)
         actuBoton.place(x=40, y=70, width=150, height=30)
 
         # ----------------------------------------------------------
 
-        elimiBoton = Button(text="Eliminar Proveedor", font=("Ariel", 8, "bold"), command=self.eliminar)
+        elimiBoton = Button(self.ventana,text="Eliminar Proveedor", font=("Ariel", 8, "bold"), command=self.eliminar)
         elimiBoton.place(x=40, y=110, width=150, height=30)
 
     def agregar(self):
@@ -82,29 +103,4 @@ class Crud_Provedores:
         agregar_btn = Button(pantallaN, text="Agregar", font=("Arial", 10, "bold"), command=self.agregar_proveedor)
         agregar_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
-    def agregar_proveedor(self):
-        id = self.textadd_id.get()
-        nombre = self.textadd_nombre.get()
-        telefono = self.textadd_telefono.get()
-        empresa = self.textadd_empresa.get()
-
-        try:
-            self.bs.cursor.execute(
-                "INSERT INTO Proveedores (idProveedor, nombre, numero_telefono, empresa) VALUES (?, ?, ?, ?)",
-                (id, nombre, telefono, empresa))
-            self.bs.conexion.commit()
-            mb.showinfo("Éxito", "Proveedor agregado con éxito.")
-        except sqlite3.Error as e:
-            mb.showerror("Error", "Error al agregar el proveedor: " + str(e))
-
-    def actualizar(self):
-        pantallaN = Toplevel(self.ventana)
-        pantallaN.geometry("300x400+850+250")
-
-    def eliminar(self):
-        pantallaN = Toplevel(self.ventana)
-        pantallaN.geometry("300x400+850+250")
-
-ventana = Tk()
-app = Crud_Provedores(ventana)
-ventana.mainloop()
+        self.ventana.mainloop()
