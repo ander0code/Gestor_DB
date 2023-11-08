@@ -5,7 +5,7 @@ class Crud_Productos:
         self.ventana.geometry("230x150+850+300")
         self.ventana.title("BackPack")
         #ventana.minsize(600,700)
-        self.texto = Label(text="CRUD PRODUCTOS")
+        self.texto = Label(self.ventana,text="CRUD PRODUCTOS")
         self.texto.config(font=("Ariel",10,"bold"))
         self.texto.pack()
         self.ventana.resizable(False,False)
