@@ -30,6 +30,7 @@ def login():
     bs.cursor.execute("SELECT * FROM usuarios WHERE Id = ? AND contrasenna = ? ",(id,contra))
     if bs.cursor.fetchall():
         mb.showinfo("Acceso Admitido", "Acaba de Ingresar al Gestor.")
+        ventana.withdraw()
         Crud_General(ventana)
     else:
         mb.showerror("ERROR","Datos no encontrados")

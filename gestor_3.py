@@ -11,7 +11,22 @@ class Crud_Provedores:
         self.bs = Base_Datos()
 
         self.crear_interfaz()
+    def mostrar(self):
+        ventana2 = Toplevel(self.ventana)
+        ventana2.title("Opciones")
+        ventana2.geometry("500x450")
+        ventana2.resizable(False, False)
+        texto = Label(ventana2, text="PROVEEDORES", font=("Ariel", 15, "bold"))
+        texto.place(x=185, y=30)
+        mi_frame = Frame(ventana2, bd=1, relief=SOLID)
+        mi_frame.place(x=100, y=70, width=300, height=300)
+        botton4 = Button(ventana2)
+        botton4.config(text="Actualizar Producto", font=("Ariel", 8, "bold"))
+        botton4.place(x=40, y=400, width=150, height=30)
 
+        botton5 = Button(ventana2)
+        botton5.config(text="Eliminar Producto", font=("Ariel", 8, "bold"))
+        botton5.place(x=300, y=400, width=150, height=30)
     def agregar_proveedor(self):
         id = self.textadd_id.get()
         nombre = self.textadd_nombre.get()
@@ -46,13 +61,10 @@ class Crud_Provedores:
 
         # ----------------------------------------------------------
 
-        actuBoton = Button(self.ventana,text="Actualizar Proveedor", font=("Ariel", 8, "bold"), command=self.actualizar)
-        actuBoton.place(x=40, y=70, width=150, height=30)
+        mostrarBoton = Button(self.ventana,text="Mostrar Productos", font=("Ariel", 8, "bold"), command=self.mostrar)
+        mostrarBoton.place(x=40, y=70, width=150, height=30)
 
         # ----------------------------------------------------------
-
-        elimiBoton = Button(self.ventana,text="Eliminar Proveedor", font=("Ariel", 8, "bold"), command=self.eliminar)
-        elimiBoton.place(x=40, y=110, width=150, height=30)
 
     def agregar(self):
         pantallaN = Toplevel(self.ventana)
