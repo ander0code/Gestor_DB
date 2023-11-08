@@ -4,7 +4,7 @@ from Connexion_DB import *
 class Crud_Provedores:
     def __init__(self,ventana):
         self.ventana = Toplevel(ventana)
-        self.ventana.geometry("230x200+850+300")
+        self.ventana.geometry("230x120+850+300")
         self.ventana.title("BackPack")
         self.ventana.resizable(False, False)
 
