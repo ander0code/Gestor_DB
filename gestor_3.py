@@ -7,19 +7,35 @@ class Crud_Provedores:
         self.ventana.geometry("230x120+850+300")
         self.ventana.title("BackPack")
         self.ventana.resizable(False, False)
-
         self.bs = Base_Datos()
-
         self.crear_interfaz()
     def mostrar(self):
         ventana2 = Toplevel(self.ventana)
         ventana2.title("Opciones")
-        ventana2.geometry("500x450")
+        ventana2.geometry("500x450+800+300")
         ventana2.resizable(False, False)
         texto = Label(ventana2, text="PROVEEDORES", font=("Ariel", 15, "bold"))
         texto.place(x=185, y=30)
         mi_frame = Frame(ventana2, bd=1, relief=SOLID)
         mi_frame.place(x=100, y=70, width=300, height=300)
+        #-------------------------------------------------
+        bs = Base_Datos()
+        bs.cursor.execute("SELECT nombre FROM Proveedores;")
+        resultados = bs.cursor.fetchall()
+        print(len(resultados))
+        #-------------------------------------------
+
+        panel_control = IntVar()
+        panel_control.set(-1)
+            # Itera sobre los resultados de la consulta y crea botones de radio para cada fila
+        for i, fila in enumerate(resultados):
+            x = 200  # La posición horizontal se mantiene constante
+            y = 80 + i * 50
+            nombre = fila[0]  # Suponiendo que el nombre está en la primera posición de cada fila
+            button = Radiobutton(ventana2, variable=panel_control, value=i, text=nombre)
+            button.place(x=x, y=y, width=100, height=50)
+
+        #-------------------------------------------------
         botton4 = Button(ventana2)
         botton4.config(text="Actualizar Producto", font=("Ariel", 8, "bold"))
         botton4.place(x=40, y=400, width=150, height=30)
