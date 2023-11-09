@@ -4,18 +4,30 @@ from Connexion_DB import *
 class Crud_Provedores:
     def __init__(self,ventana):
         self.ventana = Toplevel(ventana)
-        self.ventana.geometry("230x120+850+300")
+        self.ventana.geometry("300x200+850+350")
         self.ventana.title("BackPack")
+        self.ventana.iconbitmap("Logo_.ico")
         self.ventana.resizable(False, False)
         self.bs = Base_Datos()
         self.crear_interfaz()
+        self.imagen = PhotoImage(file="logo_return2.1.gif")
+
+        def retornar_ventana():
+            self.ventana.withdraw()
+            ventana.deiconify()
+
+        self.botton_return2 = Button(self.ventana, image=self.imagen, command=retornar_ventana)
+        self.botton_return2.place(x=130, y=170)
+
     def mostrar(self):
+        self.ventana.withdraw()
         ventana2 = Toplevel(self.ventana)
+        ventana2.iconbitmap("Logo_.ico")
         ventana2.title("Opciones")
         ventana2.geometry("500x450+800+300")
         ventana2.resizable(False, False)
         texto = Label(ventana2, text="PROVEEDORES", font=("Ariel", 15, "bold"))
-        texto.place(x=185, y=30)
+        texto.place(x=180, y=30)
         mi_frame = Frame(ventana2, bd=1, relief=SOLID)
         mi_frame.place(x=100, y=70, width=300, height=300)
         #-------------------------------------------------
@@ -43,6 +55,13 @@ class Crud_Provedores:
         botton5 = Button(ventana2)
         botton5.config(text="Eliminar Producto", font=("Ariel", 8, "bold"))
         botton5.place(x=300, y=400, width=150, height=30)
+        def retornar_ventana():
+            ventana2.withdraw()
+            self.ventana.deiconify()
+
+        botton_return = Button(ventana2, image=self.imagen, command=retornar_ventana)
+        botton_return.place(x=235, y=400)
+
     def agregar_proveedor(self):
         id = self.textadd_id.get()
         nombre = self.textadd_nombre.get()
@@ -67,26 +86,34 @@ class Crud_Provedores:
         pantallaN.geometry("300x400+850+250")
     def crear_interfaz(self):
         texto = Label(self.ventana,text="CRUD PROVEEDOR")
-        texto.config(font=("Ariel", 10, "bold"))
-        texto.pack()
+        texto.config(font=("Ariel", 18, "bold"))
+        texto.place(x=35,y=10)
+        # ----------------------------------------------------------
+
+        agregarBoton = Button(self.ventana,text="Agregar Proveedor", font=("Ariel", 14, "bold"), command=self.agregar)
+        agregarBoton.place(x=50, y=50, width=200, height=50)
 
         # ----------------------------------------------------------
 
-        agregarBoton = Button(self.ventana,text="Agregar Proveedor", font=("Ariel", 8, "bold"), command=self.agregar)
-        agregarBoton.place(x=40, y=30, width=150, height=30)
-
-        # ----------------------------------------------------------
-
-        mostrarBoton = Button(self.ventana,text="Mostrar Productos", font=("Ariel", 8, "bold"), command=self.mostrar)
-        mostrarBoton.place(x=40, y=70, width=150, height=30)
+        mostrarBoton = Button(self.ventana,text="Mostrar Proveedores", font=("Ariel", 14, "bold"), command=self.mostrar)
+        mostrarBoton.place(x=40, y=110, width=220, height=50)
 
         # ----------------------------------------------------------
 
     def agregar(self):
+        self.ventana.withdraw()
         pantallaN = Toplevel(self.ventana)
-        pantallaN.geometry("350x215+850+250")
+        pantallaN.iconbitmap("Logo_.ico")
+        pantallaN.geometry("350x215+800+350")
         pantallaN.grid_columnconfigure(0, weight=1)
         pantallaN.grid_columnconfigure(1, weight=1)
+
+        # ----------------------------------------------------------
+        def retornar_ventana():
+            pantallaN.withdraw()
+            self.ventana.deiconify()
+        botton_return = Button(pantallaN,image=self.imagen,command=retornar_ventana)
+        botton_return.place(x=30,y=172)
 
         # ----------------------------------------------------------
 
@@ -130,5 +157,7 @@ class Crud_Provedores:
 
         agregar_btn = Button(pantallaN, text="Agregar", font=("Arial", 10, "bold"), command=self.agregar_proveedor)
         agregar_btn.grid(row=5, column=0, columnspan=2, pady=10)
+
+        # ----------------------------------------------------------
 
         self.ventana.mainloop()

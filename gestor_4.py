@@ -3,22 +3,34 @@ from Connexion_DB import *
 class Crud_Productos:
     def __init__(self,ventana):
         self.ventana = Toplevel(ventana)
-        self.ventana.geometry("230x150+850+300")
+        self.ventana.geometry("300x270+850+350")
         self.ventana.title("BackPack")
+        self.ventana.iconbitmap("Logo_.ico")
+        self.imagen = PhotoImage(file="logo_return2.1.gif")
         #ventana.minsize(600,700)
         self.texto = Label(self.ventana,text="CRUD PRODUCTOS")
-        self.texto.config(font=("Ariel",10,"bold"))
-        self.texto.pack()
+        self.texto.config(font=("Ariel",18,"bold"))
+        self.texto.place(x=35,y=10)
         self.ventana.resizable(False,False)
 
         def Opciones_aparte():
+            self.ventana.withdraw()
             ventana2 = Toplevel(self.ventana)
             ventana2.title("Opciones")
-            ventana2.geometry("500x450+850+300")
+            ventana2.geometry("500x450+800+200")
+            ventana2.iconbitmap("Logo_.ico")
             ventana2.resizable(False,False)
+
+            def retornar_ventana():
+                ventana2.withdraw()
+                self.ventana.deiconify()
+
+            botton_return = Button(ventana2, image=self.imagen, command=retornar_ventana)
+            botton_return.place(x=235, y=400)
+
             #----------------------------------
             texto = Label(ventana2, text="Productos", font=("Ariel", 15, "bold"))
-            texto.place(x=185, y=30)
+            texto.place(x=200, y=30)
             mi_frame = Frame(ventana2, bd=1, relief=SOLID)
             mi_frame.place(x=100, y=70, width=300, height=300)
             # -------------------------------------------------
@@ -48,7 +60,9 @@ class Crud_Productos:
             botton5.place(x=300, y=400, width = 150, height = 30)
         def agregar():
             pantallaN = Toplevel(self.ventana)
-            pantallaN.geometry("400x250+850+250")
+            pantallaN.geometry("400x250+800+380")
+            pantallaN.iconbitmap("Logo_.ico")
+            pantallaN.resizable(False,False)
             pantallaN.grid_columnconfigure(0, weight=1)
             pantallaN.grid_columnconfigure(1, weight=1)
 
@@ -94,24 +108,22 @@ class Crud_Productos:
             pantallaN = Toplevel(self.ventana)
             pantallaN.geometry("300x400+850+250")
 
-        def actualizar():
-            pantallaN = Toplevel(self.ventana)
-            pantallaN.geometry("300x400+850+250")
-
-        def eliminar():
-            pantallaN = Toplevel(self.ventana)
-            pantallaN.geometry("300x400+850+250")
-
-
         self.agregarBoton = Button(self.ventana)
-        self.agregarBoton.config(text="Agregar Producto",font=("Ariel",8,"bold"), command=agregar)
-        self.agregarBoton.place(x=40, y=30, width=150, height=30)
+        self.agregarBoton.config(text="Agregar Producto",font=("Ariel", 14,"bold"), command=agregar)
+        self.agregarBoton.place(x=50, y=50, width=200, height=50)
 
         self.mostrarBoton = Button(self.ventana)
-        self.mostrarBoton.config(text="Mostrar Productos", font=("Ariel", 8, "bold"), command=Opciones_aparte)
-        self.mostrarBoton.place(x=40, y=70, width=150, height =30)
+        self.mostrarBoton.config(text="Mostrar Productos", font=("Ariel", 14, "bold"), command=Opciones_aparte)
+        self.mostrarBoton.place(x=40, y=110, width=220, height=50)
 
         self.obtenerBoton = Button(self.ventana)
-        self.obtenerBoton.config(text="Obtener Producto ", font=("Ariel", 8, "bold"), command=obtener)
-        self.obtenerBoton.place(x=40, y=110, width=150, height=30)
+        self.obtenerBoton.config(text="Obtener Producto ", font=("Ariel", 14, "bold"), command=obtener)
+        self.obtenerBoton.place(x=40, y=170, width=220, height=50)
+
+        def retornar_ventana():
+            self.ventana.withdraw()
+            ventana.deiconify()
+        botton_return = Button(self.ventana,image=self.imagen,command=retornar_ventana)
+        botton_return.place(x=130,y=230)
+
         self.ventana.mainloop()

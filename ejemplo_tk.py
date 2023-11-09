@@ -29,3 +29,7 @@ def botones_seleccionables():
     #-------------------------------
     ventana.mainloop()
 botones_seleccionables()
+
+def Resolucion_pantalla(event):
+    print(f"{event.width}x{event.height}" )
+ventana.bind("<Configure>",Resolucion_pantalla)
