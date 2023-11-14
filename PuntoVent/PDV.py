@@ -3,11 +3,14 @@ from tkinter import ttk,messagebox
 import ttkbootstrap as tb
 #Impor libreria pa conectar BD
 import sqlite3
+from tkinter import simpledialog
+
 
 class Ventana(tb.Window):
     def __init__(self):
         super().__init__()
         self.ventanaLogin()
+        self.rol_usuario_actual = None
     def ventanaLogin(self):
         self.frame_login=Frame(self)
         self.frame_login.pack()
@@ -64,39 +67,46 @@ class Ventana(tb.Window):
         btnRestauraDB=ttk.Button(self.frameRight, text='Restaurar DB')
         btnRestauraDB.grid(row=3,column=0,padx=10,pady=10)
     def logueo(self):
-
-
-        #Capturar errores
+        # Capturar errores
         try:
-            #Establecer conexión
-            miConexion=sqlite3.connect('./PuntoVent/whatislove.db')
-            #Crear cursor
-            miCursor=miConexion.cursor()
+            # Establecer conexión
+            miConexion = sqlite3.connect('./PuntoVent/whatislove.db')
+            # Crear cursor
+            miCursor = miConexion.cursor()
 
-            nombreUsuario=self.txtUsuario.get()
-            claveUsuario=self.txtClave.get()
+            nombreUsuario = self.txtUsuario.get()
+            claveUsuario = self.txtClave.get()
 
-            miCursor.execute("SELECT * FROM Usuarios WHERE Nombre=? AND Clave=?", (nombreUsuario,claveUsuario))
-            #Traer todos los registros y guardar en "datos"
-            datosLogueo=miCursor.fetchall()
-            if datosLogueo!="":
+            miCursor.execute("SELECT * FROM Usuarios WHERE Nombre=? AND Clave=?", (nombreUsuario, claveUsuario))
+            # Traer todos los registros y guardar en "datos"
+            datosLogueo = miCursor.fetchall()
+            
+            if datosLogueo:
                 for row in datosLogueo:
-                    codUsuario=row[0]
-                    nomUsuario=row[1]
-                    claUsuario=row[2]
-                    rolUsuario=row[3]
-                if(nomUsuario==self.txtUsuario.get() and claUsuario==self.txtClave.get()):
-                    self.frame_login.pack_forget()#ocultar ventana de login
-                    self.ventanaMenu()#abrimos ventanamenu
+                    codUsuario = row[0]
+                    nomUsuario = row[1]
+                    claUsuario = row[2]
+                    rolUsuario = row[3]
 
-            #Aplicar Cambios
+                if nomUsuario == self.txtUsuario.get() and claUsuario == self.txtClave.get():
+                    # Almacenar el rol del usuario actual en una variable de instancia
+                    self.rol_usuario_actual = rolUsuario
+
+                    # Ocultar ventana de login
+                    self.frame_login.pack_forget()
+                    # Abrir ventana de menú
+                    self.ventanaMenu()
+
+            # Aplicar Cambios
             miConexion.commit()
-            #Cerrar la conexion
-            miConexion.close()
 
-        except:
-            #Mensaje de error porsiaca
-            messagebox.showerror("Acceso", "El usuario o clave son incorrectos")
+        except sqlite3.Error as e:
+            # Mensaje de error por si acaso
+            messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
+
+        finally:
+            # Cerrar la conexión
+            miConexion.close()
     #---------------USUARIOS------------
     def ventanaListaUsuarios(self):
 
@@ -109,17 +119,18 @@ class Ventana(tb.Window):
         btnNuevoUsuario=tb.Button(self.lblframeBotonesListUsu,text='Nuevo', width=15,bootstyle="success",command=self.ventanaNuevoUsuario)
         btnNuevoUsuario.grid(row=0,column=0,padx=5,pady=5)
 
-        btnModificarUsuario=tb.Button(self.lblframeBotonesListUsu,text='Modificar', width=15,bootstyle="warning")
+        btnModificarUsuario=tb.Button(self.lblframeBotonesListUsu,text='Modificar', width=15,bootstyle="warning", command=self.ventanaModificarUsuario)
         btnModificarUsuario.grid(row=0,column=1,padx=5,pady=5)
 
-        btnEliminarUsuario=tb.Button(self.lblframeBotonesListUsu,text='Eliminar', width=15,bootstyle="danger")
+        btnEliminarUsuario=tb.Button(self.lblframeBotonesListUsu,text='Eliminar', width=15,bootstyle="danger",command=self.borrarUsuario)
         btnEliminarUsuario.grid(row=0,column=2,padx=5,pady=5)
 
         self.lblframeBusqListUsu=LabelFrame(self.frameListaUsuarios)
         self.lblframeBusqListUsu.grid(row=1,column=0,padx=10,pady=10,sticky=NSEW)
 
-        txtBusquedaUsuarios=ttk.Entry(self.lblframeBusqListUsu,width=100)
-        txtBusquedaUsuarios.grid(row=0,column=0,padx=5,pady=5)
+        self.txtBusquedaUsuarios=ttk.Entry(self.lblframeBusqListUsu,width=100)
+        self.txtBusquedaUsuarios.grid(row=0,column=0,padx=5,pady=5)
+        self.txtBusquedaUsuarios.bind('<Key>',self.buscarUsuarios)
 
         #====================TreeView===============
         self.lblframeTreeListUsu=LabelFrame(self.frameListaUsuarios)
@@ -185,8 +196,8 @@ class Ventana(tb.Window):
         lblframeNewUser=LabelFrame(self.frameNewUser)
         lblframeNewUser.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
 
-        lblCodeNewUser=Label(lblframeNewUser,text='Codigo')
-        lblCodeNewUser.grid(row=0,column=0,padx=10,pady=10,sticky=E)
+        lblCodeModifyUser=Label(lblframeNewUser,text='Codigo')
+        lblCodeModifyUser.grid(row=0,column=0,padx=10,pady=10,sticky=E)
         self.txtCodeNewUser=ttk.Entry(lblframeNewUser,width=40)
         self.txtCodeNewUser.grid(row=0,column=1,padx=10,pady=10)
 
@@ -211,6 +222,8 @@ class Ventana(tb.Window):
 
         #Llamamos a la funcion ultimo usuario
         self.ultimoUsuario()
+        #Foco en el nombre usuario
+        self.txtNameNewUser.focus()
     def guardarUsuario(self):
         #Validacion pa que no queden vacios los campos
         if self.txtCodeNewUser.get()=="" or self.txtNameNewUser.get()=="" or self.txtClaveNewUser.get()=="":
@@ -286,6 +299,178 @@ class Ventana(tb.Window):
         coordenadasX=int((pantallaAncho/2)-(ventanaAlto/2))
         coordenadasY=int((pantallaAlto/2)-(ventanaAlto/2))
         self.frameNewUser.geometry("{}x{}+{}+{}".format(ventanaAncho,ventanaAlto,coordenadasX,coordenadasY))
+    def buscarUsuarios(self,event):
+        #Capturar errores
+        try:
+            #Establecer conexión
+            miConexion=sqlite3.connect('./PuntoVent/whatislove.db')
+            #Crear cursor
+            miCursor=miConexion.cursor()
+            #Limpiar data del treeview
+            registros=self.TreelistUsuarios.get_children()
+            #Recorrer registros
+            for elementos in registros:
+                self.TreelistUsuarios.delete(elementos)
+            #Consultar DB
+            miCursor.execute("SELECT * FROM Usuarios WHERE Nombre LIKE ?", (self.txtBusquedaUsuarios.get()+'%',))
+            #Traer todos los registros y guardar en "datos"
+            datos=miCursor.fetchall()
+            #Recorrer cada fila encontrada
+            for row in datos:
+                #Llenar treewbiew
+                self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
+            #Aplicar Cambios
+            miConexion.commit()
+            #Cerrar la conexion
+            miConexion.close()
+
+        except:
+            #Mensaje de error porsiaca
+            print("Busqueda de usuarios","Ocurrió un error al buscar en la lista de usuarios")
+    def ventanaModificarUsuario(self):
+        #Aca se valida que se abra la ventana solamente si hay algun valor seleccionado
+        self.usuarioSeleccionado=self.TreelistUsuarios.focus()
+        self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,'values')
+
+        if self.ValModUsu!='':
+            self.frameModifyUser=Toplevel(self)#Ventana por encima de la lista de usuarios
+            self.frameModifyUser.title('Nuevo Usuario')
+            self.frameModifyUser.geometry('400x300')
+            #self.CentrarVentanaModificarUser(400,300)#tamaño
+            self.frameModifyUser.resizable(0,0)#Para que no se maximice ni minimice
+            self.frameModifyUser.grab_set()#Para que no permita otra acción hasta que se cierre pues
+
+            lblModifyUser=LabelFrame(self.frameModifyUser)
+            lblModifyUser.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
+
+            lblCodeModifyUser=Label(lblModifyUser,text='Codigo')
+            lblCodeModifyUser.grid(row=0,column=0,padx=10,pady=10,sticky=E)
+            self.txtCodeModifyUser=ttk.Entry(lblModifyUser,width=40)
+            self.txtCodeModifyUser.grid(row=0,column=1,padx=10,pady=10)
+
+            lblModifyNewUser=Label(lblModifyUser,text='Nombre')
+            lblModifyNewUser.grid(row=1,column=0,padx=10,pady=10,sticky=E)
+            self.txtNameModifyUser=ttk.Entry(lblModifyUser,width=40)
+            self.txtNameModifyUser.grid(row=1,column=1,padx=10,pady=10)
+
+            lblClaveModifyUser=Label(lblModifyUser,text='Clave')
+            lblClaveModifyUser.grid(row=2,column=0,padx=10,pady=10,sticky=E)
+            self.txtClaveModifyUser=ttk.Entry(lblModifyUser,width=40)
+            self.txtClaveModifyUser.grid(row=2,column=1,padx=10,pady=10)
+
+            lblRolModifyUser=Label(lblModifyUser,text='Rol')
+            lblRolModifyUser.grid(row=3,column=0,padx=10,pady=10,sticky=E)
+            self.txtRolModifyUser=ttk.Combobox(lblModifyUser,values=('Administrador','Proveedor','Vendedor'),width=38)
+            self.txtRolModifyUser.grid(row=3,column=1,padx=10,pady=10)
+            
+
+
+            btnSaveModifyUser=ttk.Button(lblModifyUser,text='Modificar',width=38,bootstyle='warning', command=self.modificarUsuario)
+            btnSaveModifyUser.grid(row=4,column=1,padx=10,pady=10)
+            self.llenarEntrysPaModificarUser()
+            #Foco en el nombre usuario
+            self.txtNameModifyUser.focus()
+    def llenarEntrysPaModificarUser(self):
+        #Limpiar los entrys
+        self.txtCodeModifyUser.delete(0,END)
+        self.txtNameModifyUser.delete(0,END)
+        self.txtClaveModifyUser.delete(0,END)
+        self.txtRolModifyUser.delete(0,END)
+        #Llenar los entrys
+        self.txtCodeModifyUser.insert(0,self.ValModUsu[0])
+        self.txtCodeModifyUser.config(state='readonly')
+        self.txtNameModifyUser.insert(0,self.ValModUsu[1])
+        self.txtClaveModifyUser.insert(0,self.ValModUsu[2])
+        self.txtRolModifyUser.insert(0,self.ValModUsu[3])
+        self.txtRolModifyUser.config(state='readonly')
+    def modificarUsuario(self):
+        #Validacion pa que no queden vacios los campos
+        if self.txtCodeModifyUser.get()=="" or self.txtNameModifyUser.get()=="" or self.txtClaveModifyUser.get()=="":
+            messagebox.showwarning('Modificando usuarios', 'Algún campo no es válido, por favor revisar')
+            return 
+        #Capturar errores
+        try:
+            #Establecer conexión
+            miConexion=sqlite3.connect('./PuntoVent/whatislove.db')
+            #Crear cursor
+            miCursor=miConexion.cursor()
+
+            datosModificarUsuarios=self.txtNameModifyUser.get(),self.txtClaveModifyUser.get(),self.txtRolModifyUser.get()            #Consultar DB
+            miCursor.execute("UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo="+self.txtCodeModifyUser.get(),(datosModificarUsuarios))
+            #Traer todos los registros y guardar en "datos"
+            messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
+            #Aplicar Cambios
+            miConexion.commit()
+            self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,text='',values=(self.txtCodeModifyUser.get(),self.txtNameModifyUser.get(),self.txtClaveModifyUser.get(),self.txtRolModifyUser.get(),))
+            self.frameModifyUser.destroy()#Cerrala ventana
+            self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
+            #Cerrar la conexion
+            miConexion.close()
+
+        except:
+            messagebox.showerror("Modificar Usuarios","Ocurrió un error al Modificar Usuario")
+    def borrarUsuario(self):
+        # Validar si se ha seleccionado un usuario para borrar
+        usuario_seleccionado = self.TreelistUsuarios.focus()
+        valores_usuario = self.TreelistUsuarios.item(usuario_seleccionado, 'values')
+
+        if not valores_usuario:
+            messagebox.showwarning('Borrando usuarios', 'Por favor, selecciona un usuario para borrar')
+            return
+
+        codigo_usuario = valores_usuario[0]
+        nombre_usuario = valores_usuario[1]
+        rol_usuario = valores_usuario[3]
+
+        # Verificar que el usuario tenga permiso para borrar
+        if not self.es_administrador_actual():
+            messagebox.showwarning('Borrar Usuario', 'No tienes permisos para eliminar usuarios')
+            return
+
+        # Si el usuario que se intenta borrar es administrador, verificar que el rol actual también sea administrador
+        if rol_usuario == 'Administrador' and not self.es_administrador_actual():
+            messagebox.showwarning('Borrar Usuario', 'No tienes permisos para eliminar a un administrador')
+            return
+
+        # Pedir confirmación de contraseña
+        contraseña_confirmacion = simpledialog.askstring('Confirmar Eliminación', f'Ingrese la contraseña para confirmar la eliminación del usuario {nombre_usuario}:', show='*')
+
+        if not contraseña_confirmacion:
+            return  # El usuario cerró la ventana de confirmación o no ingresó contraseña
+
+        try:
+            # Establecer conexión
+            miConexion = sqlite3.connect('./PuntoVent/whatislove.db')
+            # Crear cursor
+            miCursor = miConexion.cursor()
+
+            # Consultar DB y verificar la contraseña
+            miCursor.execute("SELECT Clave FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
+            resultado = miCursor.fetchone()
+
+            if resultado and resultado[0] == contraseña_confirmacion:
+                # Eliminar el usuario
+                miCursor.execute("DELETE FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
+                # Aplicar Cambios
+                miConexion.commit()
+                messagebox.showinfo('Borrar Usuario', "Usuario Borrado Correctamente")
+                # Cerrar la conexion
+                miConexion.close()
+                # Actualizar la lista de usuarios después de borrar
+                self.ventanaListaUsuarios()
+            else:
+                messagebox.showerror('Error', 'Contraseña incorrecta')
+
+        except sqlite3.Error as e:
+            messagebox.showerror("Borrar Usuario", "Ocurrió un error al borrar el usuario: {}".format(e))
+
+        finally:
+            miConexion.close()
+
+    def es_administrador_actual(self):
+        # Verificar si el rol almacenado es "Administrador"
+        return self.rol_usuario_actual == 'Administrador'
+
 
 
 def main():
