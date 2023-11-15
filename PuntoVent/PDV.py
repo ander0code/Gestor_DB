@@ -1,5 +1,6 @@
 from tkinter import*
 from tkinter import ttk,messagebox
+from datetime import datetime
 import ttkbootstrap as tb
 #Impor libreria pa conectar BD
 import sqlite3
@@ -52,7 +53,7 @@ class Ventana(tb.Window):
         btnUsuarios=ttk.Button(self.frameLeft, text='Usuarios',width=15,command=self.ventanaListaUsuarios)
         btnUsuarios.grid(row=4,column=0,padx=10,pady=10)
 
-        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15)
+        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,command=self.mostrarHistorial)
         btnReportes.grid(row=5,column=0,padx=10,pady=10)
 
         btnBackup=ttk.Button(self.frameLeft, text='Backup',width=15)
@@ -176,7 +177,7 @@ class Ventana(tb.Window):
             #Recorrer cada fila encontrada
             for row in datos:
                 #Llenar treewbiew
-                self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
+                self.TreelistUsuarios.insert("","end",text=row[0],values=(row[0],row[1],row[2],row[3]))
             #Aplicar Cambios
             miConexion.commit()
             #Cerrar la conexion
@@ -219,11 +220,11 @@ class Ventana(tb.Window):
 
         btnSaveNewUser=ttk.Button(lblframeNewUser,text='Guardar',width=38,command=self.guardarUsuario)
         btnSaveNewUser.grid(row=4,column=1,padx=10,pady=10)
-
+        self.registrar_en_historial("Usuario ha sido creado por: ", self.txtUsuario.get())
+        self.MostrarUsuarios()
         #Llamamos a la funcion ultimo usuario
         self.ultimoUsuario()
         #Foco en el nombre usuario
-        self.txtNameNewUser.focus()
     def guardarUsuario(self):
         #Validacion pa que no queden vacios los campos
         if self.txtCodeNewUser.get()=="" or self.txtNameNewUser.get()=="" or self.txtClaveNewUser.get()=="":
@@ -241,6 +242,7 @@ class Ventana(tb.Window):
             #Traer todos los registros y guardar en "datos"
             messagebox.showinfo('Guardando Usuarios', "Usuario Guardado Correctamente")
             #Aplicar Cambios
+            
             miConexion.commit()
             self.frameNewUser.destroy()#Cerrala ventana
             self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
@@ -362,11 +364,10 @@ class Ventana(tb.Window):
             lblRolModifyUser.grid(row=3,column=0,padx=10,pady=10,sticky=E)
             self.txtRolModifyUser=ttk.Combobox(lblModifyUser,values=('Administrador','Proveedor','Vendedor'),width=38)
             self.txtRolModifyUser.grid(row=3,column=1,padx=10,pady=10)
-            
-
 
             btnSaveModifyUser=ttk.Button(lblModifyUser,text='Modificar',width=38,bootstyle='warning', command=self.modificarUsuario)
             btnSaveModifyUser.grid(row=4,column=1,padx=10,pady=10)
+
             self.llenarEntrysPaModificarUser()
             #Foco en el nombre usuario
             self.txtNameModifyUser.focus()
@@ -402,9 +403,11 @@ class Ventana(tb.Window):
             #Aplicar Cambios
             miConexion.commit()
             self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,text='',values=(self.txtCodeModifyUser.get(),self.txtNameModifyUser.get(),self.txtClaveModifyUser.get(),self.txtRolModifyUser.get(),))
+            self.registrar_en_historial(f"{self.txtNameModifyUser.get()} ha sido modificado por: ", self.txtUsuario.get())
             self.frameModifyUser.destroy()#Cerrala ventana
             self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
             #Cerrar la conexion
+            
             miConexion.close()
 
         except:
@@ -452,10 +455,14 @@ class Ventana(tb.Window):
                 # Eliminar el usuario
                 miCursor.execute("DELETE FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
                 # Aplicar Cambios
+                
                 miConexion.commit()
+                #
+                
                 messagebox.showinfo('Borrar Usuario', "Usuario Borrado Correctamente")
                 # Cerrar la conexion
                 miConexion.close()
+                self.registrar_en_historial("Un usuario ha borrado por: ", self.txtUsuario.get())
                 # Actualizar la lista de usuarios después de borrar
                 self.ventanaListaUsuarios()
             else:
@@ -466,11 +473,61 @@ class Ventana(tb.Window):
 
         finally:
             miConexion.close()
-
     def es_administrador_actual(self):
         # Verificar si el rol almacenado es "Administrador"
         return self.rol_usuario_actual == 'Administrador'
+    def mostrarHistorial(self):
+    # Limpiar contenido del frame actual
+        for widget in self.frameCenter.winfo_children():
+            widget.destroy()
 
+        # Crear el Treeview en el mismo frame
+        self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id","fecha_hora", "accion", "usuario"), height=17, show='headings')
+        self.TreelistHistorial.grid(row=0, column=0)
+
+        self.TreelistHistorial.heading("id", text="ID", anchor=W)
+        self.TreelistHistorial.heading("accion", text="Acción", anchor=W)
+        self.TreelistHistorial.heading("fecha_hora", text="Fecha y Hora", anchor=W)
+        self.TreelistHistorial.heading("usuario", text="Usuario", anchor=W)
+
+        # Obtener datos del historial desde la base de datos y cargar en el Treeview
+        self.cargarHistorial()
+    def cargarHistorial(self):
+        try:
+            miConexion = sqlite3.connect('./PuntoVent/whatislove.db')
+            miCursor = miConexion.cursor()
+
+            miCursor.execute("SELECT * FROM Historial")
+            datosHistorial = miCursor.fetchall()
+
+            for row in datosHistorial:
+                self.TreelistHistorial.insert("", "end", values=row)
+
+        except sqlite3.Error as e:
+            messagebox.showerror("Cargar Historial", f"Error al cargar el historial: {e}")
+
+        finally:
+            miConexion.close()
+    def registrar_en_historial(self, accion, usuario):
+        try:
+            miConexion = sqlite3.connect('./PuntoVent/whatislove.db')
+            miCursor = miConexion.cursor()
+
+            # Obtener la fecha y hora actual
+            fecha_hora_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            # Insertar en la tabla de historial
+            miCursor.execute("INSERT INTO Historial (fecha_hora, accion, usuario) VALUES (?, ?, ?)",
+                            (fecha_hora_actual, accion,usuario))
+
+            # Aplicar cambios
+            miConexion.commit()
+
+        except sqlite3.Error as e:
+            messagebox.showerror("Registro en Historial", f"Error al registrar en el historial: {e}")
+
+        finally:
+            miConexion.close()
 
 
 def main():
