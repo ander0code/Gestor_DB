@@ -632,8 +632,8 @@ class Ventana(tb.Window):
     def ventanaNuevoProducto(self):
         self.frameNewProduct=Toplevel(self)#Ventana por encima de la lista de usuarios
         self.frameNewProduct.title('Nuevo Producto')
-        self.frameNewProduct.geometry("600x400+600+600")#tamaño
-        self.frameNewProduct.resizable(0,0)#Para que no se maximice ni minimice
+        self.frameNewProduct.geometry("410x380+700+320")#tamaño
+        self.frameNewProduct.resizable(False,False)#Para que no se maximice ni minimice
         self.frameNewProduct.grab_set()#Para que no permita otra acción hasta que se cierre pues
 
         lblframeNewProduc=LabelFrame(self.frameNewProduct)
@@ -668,7 +668,7 @@ class Ventana(tb.Window):
 
 
         btnSaveNewProduct=ttk.Button(lblframeNewProduc,text='Guardar',width=38,command=self.guardarProducto)
-        btnSaveNewProduct.grid(row=5,column=0,padx=10,pady=10)
+        btnSaveNewProduct.grid(row=5,column=1,padx=10,pady=10)
         
         #Foco en el nombre usuario
         self.txtNameNewProduct.focus()
@@ -735,7 +735,7 @@ class Ventana(tb.Window):
         if self.ValModPro!='':
             self.frameModifyProduc=Toplevel(self)#Ventana por encima de la lista de usuarios
             self.frameModifyProduc.title('Nuevo Usuario')
-            self.frameModifyProduc.geometry('600x500')
+            self.frameModifyProduc.geometry('500x430+700+320')
             #self.CentrarVentanaModificarUser(400,300)#tamaño
             self.frameModifyProduc.resizable(0,0)#Para que no se maximice ni minimice
             self.frameModifyProduc.grab_set()#Para que no permita otra acción hasta que se cierre pues
