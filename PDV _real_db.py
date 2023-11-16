@@ -115,7 +115,6 @@ class Ventana(tb.Window):
         except sqlite3.Error as e:
             # Mensaje de error por si acaso
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
-
     def configurar_VentanaMenu(self):
         global app
         app.geometry("130x250+900+300")
@@ -188,7 +187,6 @@ class Ventana(tb.Window):
             btnEliminarUsuario.grid(row=0, column=2, padx=5, pady=5)
 
             self.MostrarUsuarios()
-
     def configurar_VentanaListaUsuarios(self):
         global app
         app.geometry("830x450+500+300")
@@ -496,7 +494,6 @@ class Ventana(tb.Window):
         # Verificar si el rol almacenado es "Administrador"
         return self.rol_usuario_actual == 'Administrador'
 
-
     # ---------------Proveedor------------
     def ventanaListaProductosProvedor(self):
         self.frameListaProductos = Toplevel(self)
@@ -531,7 +528,6 @@ class Ventana(tb.Window):
         TreeScrollListProd.grid(row=2, column=1)
         TreeScrollListProd.config(command=self.TreelistProductosPro.yview)
         self.MostrarProductosProveedor()
-
     def configurar_VentanaListaProvedor(self):
         global app
         app.geometry("830x450+500+300")
@@ -569,7 +565,6 @@ class Ventana(tb.Window):
             # Llenar treewbiew
             self.TreelistUsuarios.insert("", 0, text=proveedor[0],
                                          values=(proveedor[0], proveedor[1], proveedor[2], proveedor[3]))
-
 
     #----------Productos-----------
     def ventanaListaProductos(self):
@@ -622,7 +617,6 @@ class Ventana(tb.Window):
 
         #Llamar a func mostrar usuarios
         self.MostrarProductos()
-
     def configurar_VentanaListaProductos(self):
         global app
         app.geometry("1400x450+200+250")
@@ -883,9 +877,7 @@ class Ventana(tb.Window):
             self.registrar_en_historial("Un Producto ha sido borrado por: ", self.txtUsuario.get())
         except ValueError as e:
             messagebox.showerror('Borrar Producto', f'Ocurrió un error al borrar el producto: {e}')
-        
-        
-        
+
     #----------Historial------------
     def mostrarHistorial(self):
     # Limpiar contenido del frame actual
@@ -903,7 +895,6 @@ class Ventana(tb.Window):
 
         # Obtener datos del historial desde la base de datos y cargar en el Treeview
         self.cargarHistorial()
-
     def configurar_VentanaListaHistorial(self):
         global app
         app.geometry("950x300+450+300")
@@ -920,7 +911,6 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             messagebox.showerror("Cargar Historial", f"Error al cargar el historial: {e}")
-
     def registrar_en_historial(self, accion, usuario):
         try:
             db = Crud_Historial()
@@ -947,17 +937,16 @@ class Ventana(tb.Window):
         btnborraProduc = ttk.Button(self.frameborrarTabla, text='Borrar Producto', width=15,
                                     command=self.borrar_tabla_producto)
         btnborraProduc.grid(row=1, column=0, padx=10, pady=10)
-
     def borrar_tabla_historial(self):
         borra = Crud_Historial()
         borra.borrar_tabla()
         messagebox.showinfo("Borrar Tabla Historial", "Tabla exitosamente Borrada")
-
     def borrar_tabla_producto(self):
         borra = Crud_Productos()
         borra.borrar_tabla()
         messagebox.showinfo("Borrar Tabla Producto", "Tabla exitosamente Borrada")
 
+#--------Arranque------------
 def main():
     global app
     app=Ventana()
