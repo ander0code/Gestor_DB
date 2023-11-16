@@ -946,6 +946,7 @@ class Ventana(tb.Window):
         borra.borrar_tabla()
         messagebox.showinfo("Borrar Tabla Producto", "Tabla exitosamente Borrada")
 
+
 #--------Arranque------------
 def main():
     global app
