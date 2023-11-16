@@ -12,6 +12,8 @@ import sqlite3
 from tkinter import simpledialog
 
 class Ventana(tb.Window):
+    global app
+    app = None
     def __init__(self):
         super().__init__()
         self.ventanaLogin()
@@ -20,10 +22,10 @@ class Ventana(tb.Window):
         self.frame_login = Frame(self)
         self.frame_login.pack()
 
-        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Acceso')
+        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Acceso', bootstyle="info")
         self.lblframe_login.pack(padx=10, pady=10)
 
-        lbltitulo = Label(self.lblframe_login, text='Inicio de sesión', font=('Arial', 18))
+        lbltitulo = ttk.Label(self.lblframe_login, text='Inicio de sesión',bootstyle="light", font=('Arial', 18))
         lbltitulo.pack(padx=10, pady=35)
 
         self.txtUsuario = ttk.Entry(self.lblframe_login, width=40,bootstyle='secondary', justify=CENTER)
@@ -35,7 +37,7 @@ class Ventana(tb.Window):
         self.txtClave.configure(show='*')
         self.set_placeholder(self.txtClave, "Contraseña")
 
-        btnAcceso = ttk.Button(self.lblframe_login, text='Log in', command=self.logueo)
+        btnAcceso = ttk.Button(self.lblframe_login, text='Log in',bootstyle="info", command=self.logueo)
         btnAcceso.pack(padx=10, pady=10)
     # es para imitar el placeholder
     def set_placeholder(self, entry_widget, placeholder):
@@ -51,27 +53,30 @@ class Ventana(tb.Window):
             entry_widget.insert(0, placeholder)
               # Restaurar el color del texto al placeholder
     def ventanaMenu(self):
+        self.configurar_VentanaMenu()
         self.frameLeft=Frame(self,width=200)
         self.frameLeft.grid(row=0,column=0,sticky=NSEW)
         self.frameCenter=Frame(self)
         self.frameCenter.grid(row=0,column=1,sticky=NSEW)
-        self.frameRight=Frame(self,width=400)
-        self.frameRight.grid(row=0,column=2,sticky=NSEW)
+
+        #-----------mensaje de bienvenida
+        BienveProductos = ttk.Label(self.frameLeft, text='BIENVENIDO AL GESTOR,{}'.format(self.txtUsuario), width=15)
+        BienveProductos.grid(row=0, column=0, padx=10, pady=10)
         #-------------BOTONES-----
-        btnProductos=ttk.Button(self.frameLeft, text='Productos', width=15,command=self.ventanaListaProductos)
+        btnProductos=ttk.Button(self.frameLeft, text='Productos', width=15,command=lambda: [self.ventanaListaProductos(),self.configurar_VentanaListaProductos()])
         btnProductos.grid(row=0,column=0,padx=10,pady=10)
 
 
         btnClientes=ttk.Button(self.frameLeft, text='Proveedores',width=15,
-                               command=lambda: self.ventanaListaUsuarios(mostrar_proveedores=True))
+                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),self.configurar_VentanaListaProvedor()])
         btnClientes.grid(row=1,column=0,padx=10,pady=10)
 
 
         btnUsuarios=ttk.Button(self.frameLeft, text='Usuarios',width=15,
-                               command=lambda: self.ventanaListaUsuarios(mostrar_proveedores=False))
+                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),self.configurar_VentanaListaUsuarios()])
         btnUsuarios.grid(row=2,column=0,padx=10,pady=10)
 
-        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,command=self.mostrarHistorial)
+        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,command=lambda :[self.mostrarHistorial(),self.configurar_VentanaListaHistorial()])
         btnReportes.grid(row=3,column=0,padx=10,pady=10)
         
         btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar DB',width=15,command=self.subventanborrarTabla)
@@ -111,9 +116,13 @@ class Ventana(tb.Window):
             # Mensaje de error por si acaso
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
 
+    def configurar_VentanaMenu(self):
+        global app
+        app.geometry("130x250+900+300")
+        return app
+
     #---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores= False):
-
         self.frameListaUsuarios=Frame(self.frameCenter)
         self.frameListaUsuarios.grid(row=0,column=0,columnspan=2,sticky=NSEW)
 
@@ -138,7 +147,7 @@ class Ventana(tb.Window):
 
         columnas=("codigo", "nombre", "clave", "rol")
 
-        self.TreelistUsuarios=tb.Treeview(self.lblframeTreeListUsu,columns=columnas,height=17,show='headings',bootstyle='secondary')
+        self.TreelistUsuarios=tb.Treeview(self.lblframeTreeListUsu,columns=columnas,height=17,show='headings',bootstyle='info')
         self.TreelistUsuarios.grid(row=0,column=0)
 
         self.TreelistUsuarios.heading("codigo",text="Codigo",anchor=W)
@@ -179,6 +188,12 @@ class Ventana(tb.Window):
             btnEliminarUsuario.grid(row=0, column=2, padx=5, pady=5)
 
             self.MostrarUsuarios()
+
+    def configurar_VentanaListaUsuarios(self):
+        global app
+        app.geometry("830x450+500+300")
+        print("estoy cambiando")
+        return app
     def MostrarUsuarios(self):
         #Capturar errores
         try:
@@ -205,7 +220,7 @@ class Ventana(tb.Window):
     def ventanaNuevoUsuario(self):
         self.frameNewUser=Toplevel(self)#Ventana por encima de la lista de usuarios
         self.frameNewUser.title('Nuevo Usuario')
-        self.CentrarVentanaNuevoUser(400,300)#tamaño
+        self.frameNewUser.geometry("400x300")#tamaño
         self.frameNewUser.resizable(0,0)#Para que no se maximice ni minimice
         self.frameNewUser.grab_set()#Para que no permita otra acción hasta que se cierre pues
 
@@ -309,14 +324,6 @@ class Ventana(tb.Window):
         except:
             #Mensaje de error porsiaca
             print("Ocurrió un error")
-    def CentrarVentanaNuevoUser(self,ancho,alto):
-        ventanaAncho=ancho
-        ventanaAlto=alto
-        pantallaAncho=self.frameRight.winfo_screenwidth()
-        pantallaAlto=self.frameRight.winfo_screenheight()
-        coordenadasX=int((pantallaAncho/2)-(ventanaAlto/2))
-        coordenadasY=int((pantallaAlto/2)-(ventanaAlto/2))
-        self.frameNewUser.geometry("{}x{}+{}+{}".format(ventanaAncho,ventanaAlto,coordenadasX,coordenadasY))
     def buscarProducztos(self,event):
         #Capturar errores
         try:
@@ -508,7 +515,7 @@ class Ventana(tb.Window):
 
         columnas = ("ID Producto", "Nombre_proveedor", "Nombre del Producto", "Precio", "Stock", "Descripción")
         self.TreelistProductosPro = tb.Treeview(self.lblframeTreeListProd, columns=columnas, height=17, show='headings',
-                                            bootstyle='secondary')
+                                            bootstyle='info')
         self.TreelistProductosPro.grid(row=0, column=0)
         self.TreelistProductosPro.heading("ID Producto", text="ID Producto", anchor=W)
         self.TreelistProductosPro.heading("Nombre_proveedor", text="Nombre_proveedor", anchor=W)
@@ -524,6 +531,12 @@ class Ventana(tb.Window):
         TreeScrollListProd.grid(row=2, column=1)
         TreeScrollListProd.config(command=self.TreelistProductosPro.yview)
         self.MostrarProductosProveedor()
+
+    def configurar_VentanaListaProvedor(self):
+        global app
+        app.geometry("830x450+500+300")
+        print("estoy cambiando")
+        return app
     def mostrar_proveedores(self):
 
         crud = Crud_Proveedor()
@@ -609,6 +622,12 @@ class Ventana(tb.Window):
 
         #Llamar a func mostrar usuarios
         self.MostrarProductos()
+
+    def configurar_VentanaListaProductos(self):
+        global app
+        app.geometry("1400x450+200+250")
+        print("estoy cambiando")
+        return app
     def MostrarProductos(self):
         #Capturar errores
         try:
@@ -672,8 +691,6 @@ class Ventana(tb.Window):
         
         #Foco en el nombre usuario
         self.txtNameNewProduct.focus()
-
-
     def guardarProducto(self):
         #Validacion pa que no queden vacios los campos
         if (self.txtCodeNewProduc.get()==""
@@ -886,6 +903,12 @@ class Ventana(tb.Window):
 
         # Obtener datos del historial desde la base de datos y cargar en el Treeview
         self.cargarHistorial()
+
+    def configurar_VentanaListaHistorial(self):
+        global app
+        app.geometry("950x300+450+300")
+        print("estoy cambiando")
+        return app
     def cargarHistorial(self):
         try:
             db = Crud_Historial()
@@ -936,10 +959,12 @@ class Ventana(tb.Window):
         messagebox.showinfo("Borrar Tabla Producto", "Tabla exitosamente Borrada")
 
 def main():
+    global app
     app=Ventana()
-    app.title('Sistema de Ventas')
-    app.state('zoomed')
+    app.title('Back Pack')
+    app.geometry("300x300+800+350")
     tb.Style('darkly')
+    app.iconbitmap("Logo.ico")
     app.mainloop()
 
 if __name__=='__main__':
