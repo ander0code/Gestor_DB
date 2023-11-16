@@ -21,11 +21,8 @@ class Crud_Productos:
                          txtDescripcionNewProduct):
         try:
 
-            self.miCursor.execute("INSERT INTO Producto (Codigo_Proveedor,nombreProducto,precio,stock,descripcion) "
-                                  "VALUES(?,?,?,?,?)",
-                                  (txtCodeNewProduc,txtNameNewProduct,
-                                   txtPrecioNewProduct,txtStockNewProduct,
-                                   txtDescripcionNewProduct))
+            self.miCursor.execute("INSERT INTO Producto (Codigo_Proveedor,nombreProducto,precio,stock,descripcion) VALUES(?,?,?,?,?)",
+                                  (txtCodeNewProduc,txtNameNewProduct,txtPrecioNewProduct,txtStockNewProduct,txtDescripcionNewProduct))
             self.db.commit()
             print("agregado exitosamente")
             return True
@@ -35,7 +32,7 @@ class Crud_Productos:
     def Buscar_Productos(self,busqueda):
         if busqueda:
             # Consultar DB
-            self.miCursor.execute("SELECT * FROM Producto WHERE nombreProducto LIKE ?", ('%'+busqueda + '%',))
+            self.miCursor.execute("SELECT * FROM Producto WHERE nombreProducto LIKE ?", ('%' + busqueda + '%',))
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos
@@ -49,8 +46,7 @@ class Crud_Productos:
 
         try:
             self.miCursor.execute(
-                "UPDATE Producto SET Codigo_Proveedor=?,nombreProducto=?,precio=?,stock = ? ,descripcion=? "
-                "WHERE idProducto=" + txtCodeProductoModifyProduct,
+                "UPDATE Producto SET Codigo_Proveedor=?,nombreProducto=?,precio=?,stock = ? ,descripcion=? WHERE idProducto=" + txtCodeProductoModifyProduct,
                 datosModificarUsuarios
             )
             self.db.commit()
@@ -69,5 +65,15 @@ class Crud_Productos:
             return True
         except sqlite3.Error as e:
             print("problemas {} ".format(e))
+
+    def borrar_tabla(self):
+        try:
+            self.miCursor.execute("DELETE FROM Producto")
+            self.db.commit()
+            self.db.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Error al borrar la tabla Historial: {e}")
+            return []
 
 

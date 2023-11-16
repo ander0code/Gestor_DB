@@ -27,3 +27,13 @@ class Crud_Historial:
 
         except sqlite3.Error as e:
             print("problemas {} ".format(e))
+
+    def borrar_tabla(self):
+        try:
+            self.miCursor.execute("DELETE FROM Historial")
+            self.db.commit()
+            self.db.close()
+            return True
+        except sqlite3.Error as e:
+            print(f"Error al borrar la tabla Historial: {e}")
+            return []

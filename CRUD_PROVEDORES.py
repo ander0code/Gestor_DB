@@ -16,9 +16,19 @@ class Crud_Proveedor:
             print(f"Error en mostrar proveedor: {e}")
             return []
 
+    def Obetener_proveedores(self):
+        try:
+            self.miCursor.execute("SELECT Nombre FROM Usuarios WHERE Rol = 'Proveedor'")
+            datos = self.miCursor.fetchall()
+            self.db.close()
+            return datos
+        except sqlite3.Error as e:
+            print(f"Error en mostrar proveedor: {e}")
+            return []
+
     def mostrar_productos_proveedor(self, codigo_proveedor):
         try:
-            self.miCursor.execute("SELECT Producto.* FROM Producto "
+            self.miCursor.execute("SELECT Usuarios.Nombre, Producto.* FROM Producto "
                              "JOIN Usuarios ON Producto.Codigo_Proveedor = Usuarios.Codigo "
                              "WHERE Usuarios.Codigo = ?", (codigo_proveedor,))
             productos = self.miCursor.fetchall()
