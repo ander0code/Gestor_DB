@@ -643,14 +643,18 @@ class Ventana(tb.Window):
         self.frameNewProduct.resizable(False,False)#Para que no se maximice ni minimice
         self.frameNewProduct.grab_set()#Para que no permita otra acción hasta que se cierre pues
 
+        self.db = Crud_Proveedor()
+        self.datos = self.db.Obetener_proveedores()
+
         lblframeNewProduc=LabelFrame(self.frameNewProduct)
         lblframeNewProduc.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
 
         lblCodeModifyProduct=Label(lblframeNewProduc,text='Id_provedor')
         lblCodeModifyProduct.grid(row=0,column=0,padx=10,pady=10,sticky=E)
         selecionProveedor = StringVar()
-        self.txtCodeNewProduc=ttk.Entry(lblframeNewProduc,width=40)
-        self.txtCodeNewProduc.grid(row=0,column=1,padx=10,pady=10)
+        self.txtCodeNewProduc = ttk.Combobox(lblframeNewProduc, values=self.datos,
+                                             textvariable=selecionProveedor, width=40)
+        self.txtCodeNewProduc.grid(row=0, column=1, padx=10, pady=10)
 
         lblNameNewProduct=Label(lblframeNewProduc,text='Producto')
         lblNameNewProduct.grid(row=1,column=0,padx=10,pady=10,sticky=E)
@@ -679,6 +683,13 @@ class Ventana(tb.Window):
         
         #Foco en el nombre usuario
         self.txtNameNewProduct.focus()
+
+    def eliminar_letras(self,cadena):
+        solo_numeros = ''
+        for caracter in cadena:
+            if caracter.isdigit():
+                solo_numeros += caracter
+        return solo_numeros
     def guardarProducto(self):
         #Validacion pa que no queden vacios los campos
         if (self.txtCodeNewProduc.get()==""
@@ -692,7 +703,8 @@ class Ventana(tb.Window):
         try:
             #Establecer conexión
             Crud = Crud_Productos()
-            Crud.Guardar_Producto(self.txtCodeNewProduc.get(),self.txtNameNewProduct.get(),
+            dato_nuevo = self.eliminar_letras(self.txtCodeNewProduc.get())
+            Crud.Guardar_Producto(dato_nuevo,self.txtNameNewProduct.get(),
                                    self.txtPrecioNewProduct.get(),self.txtStockNewProduct.get(),
                                    self.txtDescripcionNewProduct.get()
                                    )
@@ -745,9 +757,12 @@ class Ventana(tb.Window):
             self.frameModifyProduc.resizable(0,0)#Para que no se maximice ni minimice
             self.frameModifyProduc.grab_set()#Para que no permita otra acción hasta que se cierre pues
 
+            self.db = Crud_Proveedor()
+            self.datos = self.db.Obetener_proveedores()
+
             lblModifyProduct=LabelFrame(self.frameModifyProduc)
             lblModifyProduct.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
-            
+
             lblCodeProducModifyProduct=Label(lblModifyProduct,text='Codigo del producto')
             lblCodeProducModifyProduct.grid(row=0,column=0,padx=10,pady=10,sticky=E)
             self.txtCodeProductoModifyProduct=ttk.Entry(lblModifyProduct,width=40)
@@ -755,8 +770,10 @@ class Ventana(tb.Window):
 
             lblCodeModifyProduct=Label(lblModifyProduct,text='Nuevo Codigo de provedor')
             lblCodeModifyProduct.grid(row=1,column=0,padx=10,pady=10,sticky=E)
-            self.txtCodeProveModifyProduct=ttk.Entry(lblModifyProduct,width=40)
-            self.txtCodeProveModifyProduct.grid(row=1,column=1,padx=10,pady=10)
+            selecionProveedor = StringVar()
+            self.txtCodeProveModifyProduct = ttk.Combobox(lblModifyProduct, values=self.datos,
+                                                          textvariable=selecionProveedor, width=40)
+            self.txtCodeProveModifyProduct.grid(row=1, column=1, padx=10, pady=10)
 
             lblModifyNewProduct=Label(lblModifyProduct,text='Nuevo Nombre')
             lblModifyNewProduct.grid(row=2,column=0,padx=10,pady=10,sticky=E)
@@ -815,9 +832,9 @@ class Ventana(tb.Window):
         try:
             #Establecer conexión
             Crud = Crud_Productos()
-
+            dato_nuevo = self.eliminar_letras(self.txtCodeProveModifyProduct.get())
             datosModificarUsuarios=(
-            self.txtCodeProveModifyProduct.get(),
+            dato_nuevo,
             self.txtNewNameModifyProduct.get(),
             self.txtPrecioModifyProduct.get(),
             self.txtStockModifyProduct.get(),
