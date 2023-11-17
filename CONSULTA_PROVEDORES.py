@@ -1,7 +1,7 @@
 import sqlite3
 from Connexion_DB import Base_Datos
 
-class Crud_Proveedor:
+class Consulta_Proveedor:
     def __init__(self):
         self.db = Base_Datos().conexion
         self.miCursor = self.db.cursor()

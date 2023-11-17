@@ -1,6 +1,6 @@
 from Connexion_DB import *
 import sqlite3
-class Crud_Historial:
+class Consulta_Historial:
     def __init__(self):
         self.db = Base_Datos().conexion
         self.miCursor = self.db.cursor()
