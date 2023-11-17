@@ -18,7 +18,7 @@ class Crud_Proveedor:
 
     def Obetener_proveedores(self):
         try:
-            self.miCursor.execute("SELECT Nombre FROM Usuarios WHERE Rol = 'Proveedor'")
+            self.miCursor.execute("SELECT Codigo,Nombre FROM Usuarios WHERE Rol = 'Proveedor'")
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos
