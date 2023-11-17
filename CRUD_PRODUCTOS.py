@@ -8,7 +8,8 @@ class Crud_Productos:
 
     def mostrar_productos(self):
         try:
-            self.miCursor.execute("SELECT * FROM Producto")
+            self.miCursor.execute("SELECT Usuarios.Nombre, Producto.* FROM Producto "
+                                  "JOIN Usuarios ON Producto.Codigo_Proveedor = Usuarios.Codigo")
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos
@@ -32,13 +33,16 @@ class Crud_Productos:
     def Buscar_Productos(self,busqueda):
         if busqueda:
             # Consultar DB
-            self.miCursor.execute("SELECT * FROM Producto WHERE nombreProducto LIKE ?", ('%' + busqueda + '%',))
+            self.miCursor.execute("SELECT Usuarios.Nombre, Producto.* FROM Producto "
+                                  "JOIN Usuarios ON Producto.Codigo_Proveedor = Usuarios.Codigo "
+                                  "WHERE nombreProducto LIKE ?", ('%' + busqueda + '%',))
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos
         else:
             # Consulta completa si el campo de búsqueda está vacío
-            self.miCursor.execute("SELECT * FROM Producto")
+            self.miCursor.execute("SELECT Usuarios.Nombre, Producto.* FROM Producto "
+                                  "JOIN Usuarios ON Producto.Codigo_Proveedor = Usuarios.Codigo")
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos

@@ -1,5 +1,5 @@
-from tkinter import*
-from tkinter import ttk,messagebox
+from tkinter import *
+from tkinter import ttk ,messagebox
 import ttkbootstrap as tb
 from datetime import datetime
 from CRUD_PROVEDORES import Crud_Proveedor
@@ -7,7 +7,6 @@ from CRUD_PRODUCTOS import Crud_Productos
 from CRUD_HISTORIAL import Crud_Historial
 from LOGIN import Login
 from CRUD_USUARIOS import Crud_Usuarios
-#Impor libreria pa conectar BD
 import sqlite3
 from tkinter import simpledialog
 
@@ -138,7 +137,7 @@ class Ventana(tb.Window):
             self.txtBusquedaUsuarios.bind('<Key>', self.buscarProveedores)
 
         else:
-            self.txtBusquedaUsuarios.bind('<Key>', self.buscarProductos)
+            self.txtBusquedaUsuarios.bind('<Key>', self.buscarUsuarios)
 
         #====================TreeView===============
         self.lblframeTreeListUsu=LabelFrame(self.frameListaUsuarios)
@@ -262,21 +261,21 @@ class Ventana(tb.Window):
             return
         #Capturar errores
         try:
-            #Establecer conexión
-            miConexion=sqlite3.connect('whatislove.db')
-            #Crear cursor
-            miCursor=miConexion.cursor()
 
-            datosGuardarUsuarios=self.txtCodeNewUser.get(),self.txtNameNewUser.get(),self.txtClaveNewUser.get(),self.txtRolNewUser.get()            #Consultar DB
-            miCursor.execute("INSERT INTO Usuarios VALUES(?,?,?,?)",(datosGuardarUsuarios))
-            #Traer todos los registros y guardar en "datos"
+            db = Crud_Usuarios()
+
+            datosGuardarUsuarios=(self.txtCodeNewUser.get(),
+                                  self.txtNameNewUser.get(),
+                                  self.txtClaveNewUser.get(),
+                                  self.txtRolNewUser.get())
+
+            db.Guardar_Usuario(datosGuardarUsuarios)
+
             messagebox.showinfo('Guardando Usuarios', "Usuario Guardado Correctamente")
-            #Aplicar Cambios
-            miConexion.commit()
+
             self.frameNewUser.destroy()#Cerrala ventana
             self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
-            #Cerrar la conexion
-            miConexion.close()
+            #Cerrar la conexi
 
         except:
             messagebox.showerror("Guardando Usuarios","Ocurrió un error al Guardar Usuario")
@@ -322,34 +321,27 @@ class Ventana(tb.Window):
         except:
             #Mensaje de error porsiaca
             print("Ocurrió un error")
-    def buscarProducztos(self,event):
-        #Capturar errores
+    def buscarUsuarios(self,event):
         try:
-            #Establecer conexión
-            miConexion=sqlite3.connect('whatislove.db')
-            #Crear cursor
-            miCursor=miConexion.cursor()
-            #Limpiar data del treeview
+            db = Crud_Usuarios()
             registros=self.TreelistUsuarios.get_children()
-            #Recorrer registros
             for elementos in registros:
                 self.TreelistUsuarios.delete(elementos)
-            #Consultar DB
-            miCursor.execute("SELECT * FROM Usuarios WHERE Nombre LIKE ?", (self.txtBusquedaUsuarios.get()+'%',))
-            #Traer todos los registros y guardar en "datos"
-            datos=miCursor.fetchall()
-            #Recorrer cada fila encontrada
+            busqueda = self.txtBusquedaUsuarios.get()
+            if busqueda:
+                # Consultar DB
+                datos = db.Buscar_Usuario(busqueda)
+            else:
+
+                datos = db.Buscar_Usuario(busqueda)
+
             for row in datos:
                 #Llenar treewbiew
                 self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
-            #Aplicar Cambios
-            miConexion.commit()
-            #Cerrar la conexion
-            miConexion.close()
-
         except:
             #Mensaje de error porsiaca
             print("Busqueda de usuarios","Ocurrió un error al buscar en la lista de usuarios")
+
     def ventanaModificarUsuario(self):
         #Aca se valida que se abra la ventana solamente si hay algun valor seleccionado
         self.usuarioSeleccionado=self.TreelistUsuarios.focus()
@@ -423,7 +415,14 @@ class Ventana(tb.Window):
             messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
             #Aplicar Cambios
             miConexion.commit()
-            self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,text='',values=(self.txtCodeModifyUser.get(),self.txtNameModifyUser.get(),self.txtClaveModifyUser.get(),self.txtRolModifyUser.get(),))
+
+            self.ValModUsu=self.TreelistUsuarios.item(
+                self.usuarioSeleccionado,text='',
+                values=(self.txtCodeModifyUser.get(),
+                        self.txtNameModifyUser.get(),
+                        self.txtClaveModifyUser.get(),
+                        self.txtRolModifyUser.get(),))
+
             self.registrar_en_historial(f"{self.txtNameModifyUser.get()} ha sido modificado por: ", self.txtUsuario.get())
             self.frameModifyUser.destroy()#Cerrala ventana
             self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
@@ -463,22 +462,17 @@ class Ventana(tb.Window):
 
         try:
             # Establecer conexión
-            miConexion = sqlite3.connect('whatislove.db')
-            # Crear cursor
-            miCursor = miConexion.cursor()
+            db = Crud_Usuarios()
 
             # Consultar DB y verificar la contraseña
-            miCursor.execute("SELECT Clave FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
-            resultado = miCursor.fetchone()
+            resultado = db.Verifica_Usuario(codigo_usuario,)
 
             if resultado and resultado[0] == contraseña_confirmacion:
                 # Eliminar el usuario
-                miCursor.execute("DELETE FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
+                db.Borrar_Usuario(codigo_usuario,)
                 # Aplicar Cambios
-                miConexion.commit()
                 messagebox.showinfo('Borrar Usuario', "Usuario Borrado Correctamente")
                 # Cerrar la conexion
-                miConexion.close()
                 self.registrar_en_historial("Un usuario ha borrado por: ", self.txtUsuario.get())
                 # Actualizar la lista de usuarios después de borrar
                 self.ventanaListaUsuarios()
@@ -488,8 +482,6 @@ class Ventana(tb.Window):
         except sqlite3.Error as e:
             messagebox.showerror("Borrar Usuario", "Ocurrió un error al borrar el usuario: {}".format(e))
 
-        finally:
-            miConexion.close()
     def es_administrador_actual(self):
         # Verificar si el rol almacenado es "Administrador"
         return self.rol_usuario_actual == 'Administrador'
@@ -595,19 +587,21 @@ class Ventana(tb.Window):
         self.lblframeTreeListProduct=LabelFrame(self.frameListaProducto)
         self.lblframeTreeListProduct.grid(row=2,column=0,padx=10,pady=10,sticky=NSEW)
 
-        columnas=("id_Producto","provedor", "producto", "precio", "stock","descripcion")
+        columnas=("id_Producto","ID_Proveedor", "NombreProveedor", "producto", "precio", "stock","descripcion")
 
         self.TreelistProductosProductos=tb.Treeview(self.lblframeTreeListProduct,columns=columnas,height=17,show='headings',bootstyle='info')
         self.TreelistProductosProductos.grid(row=0,column=0)
 
-        self.TreelistProductosProductos.heading("id_Producto",text="id_Producto",anchor=W)
-        self.TreelistProductosProductos.heading("provedor",text="provedor",anchor=W)
-        self.TreelistProductosProductos.heading("producto",text="producto",anchor=W)
-        self.TreelistProductosProductos.heading("precio",text="precio",anchor=W)
+        self.TreelistProductosProductos.heading("id_Producto", text="id_Producto", anchor=W)
+        self.TreelistProductosProductos.heading("ID_Proveedor", text="ID Proveedor", anchor=W)
+        self.TreelistProductosProductos.heading("NombreProveedor", text="Nombre Proveedor", anchor=W)
+        self.TreelistProductosProductos.heading("producto", text="producto", anchor=W)
+        self.TreelistProductosProductos.heading("precio", text="precio", anchor=W)
         self.TreelistProductosProductos.heading("stock", text="stock", anchor=W)
         self.TreelistProductosProductos.heading("descripcion", text="descripcion", anchor=W)
 
-        self.TreelistProductosProductos['displaycolumns']=['id_Producto','provedor','producto','precio','stock','descripcion']#Solo apareceran 3 pq la clave es secreta SAPAZO
+        self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
+                                                             'producto', 'precio', 'stock', 'descripcion']#Solo apareceran 3 pq la clave es secreta SAPAZO
 
         #Creando el rico scrollbar
         TreeScrollListProduct=tb.Scrollbar(self.frameListaProducto,bootstyle='round-success')
@@ -636,7 +630,7 @@ class Ventana(tb.Window):
             #Traer todos los registros y guardar en "datos"
             #Recorrer cada fila encontrada
             for row in datos:
-                self.TreelistProductosProductos.insert("","end",text=row[0],values=(row[0],row[1],row[2],row[3],row[4],row[5]))
+                self.TreelistProductosProductos.insert("","end",text=row[0],values=(row[1],row[2],row[0],row[3],row[4],row[5],row[6]))
 
         except sqlite3.Error as e:
             #Mensaje de error porsiaca
@@ -733,7 +727,7 @@ class Ventana(tb.Window):
                 # Recorrer cada fila encontrada
             for row in datos:
                     # Llenar treewbiew
-                self.TreelistProductosProductos.insert("", "end", text=row[0], values=(row[0], row[1], row[2], row[3], row[4], row[5]))
+                self.TreelistProductosProductos.insert("", "end", text=row[0], values=(row[1], row[2], row[0], row[3], row[4], row[5],row[6]))
 
         except sqlite3.Error as e:
             # Mensaje de error porsiaca
@@ -803,10 +797,10 @@ class Ventana(tb.Window):
         self.txtCodeProductoModifyProduct.insert(0,self.ValModPro[0])
         self.txtCodeProductoModifyProduct.config(state='readonly')
         self.txtCodeProveModifyProduct.insert(0,self.ValModPro[1])
-        self.txtNewNameModifyProduct.insert(0,self.ValModPro[2])
-        self.txtPrecioModifyProduct.insert(0,self.ValModPro[3])
-        self.txtStockModifyProduct.insert(0,self.ValModPro[4])
-        self.txtDescripModifyProduct.insert(0,self.ValModPro[5])
+        self.txtNewNameModifyProduct.insert(0,self.ValModPro[3])
+        self.txtPrecioModifyProduct.insert(0,self.ValModPro[4])
+        self.txtStockModifyProduct.insert(0,self.ValModPro[5])
+        self.txtDescripModifyProduct.insert(0,self.ValModPro[6])
     def modificarProducto(self):
         #Validacion pa que no queden vacios los campos
         if (self.txtCodeProductoModifyProduct.get()=="" 
