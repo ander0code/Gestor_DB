@@ -14,6 +14,17 @@ class Crud_Usuarios:
         except sqlite3.Error as e:
             print(f"Error en mostrar proveedor: {e}")
             return []
+
+    def Ultimo_Usuario(self):
+        try:
+            self.miCursor.execute("SELECT MAX(Codigo) FROM Usuarios")
+            datos = self.miCursor.fetchall()
+            return datos
+        except sqlite3.Error as e:
+            print(f"Error en mostrar proveedor: {e}")
+            return []
+
+
     def Guardar_Usuario(self,datos):
         try:
             self.miCursor.execute("INSERT INTO Usuarios VALUES(?,?,?,?)",(datos))

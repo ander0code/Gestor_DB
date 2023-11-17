@@ -38,7 +38,7 @@ class Ventana(tb.Window):
 
         btnAcceso = ttk.Button(self.lblframe_login, text='Log in',bootstyle="info", command=self.logueo)
         btnAcceso.pack(padx=10, pady=10)
-    # es para imitar el placeholder
+
     def set_placeholder(self, entry_widget, placeholder):
         entry_widget.insert(0, placeholder)
         entry_widget.bind("<FocusIn>", lambda event: self.on_entry_click(entry_widget, placeholder))
@@ -46,11 +46,11 @@ class Ventana(tb.Window):
     def on_entry_click(self, entry_widget, placeholder):
         if entry_widget.get() == placeholder:
             entry_widget.delete(0, END)
-              # Cambiar el color del texto al escribir
+
     def on_focus_out(self, entry_widget, placeholder):
         if entry_widget.get() == "":
             entry_widget.insert(0, placeholder)
-              # Restaurar el color del texto al placeholder
+
     def ventanaMenu(self):
         self.configurar_VentanaMenu()
         self.frameLeft=Frame(self,width=200)
@@ -58,37 +58,39 @@ class Ventana(tb.Window):
         self.frameCenter=Frame(self)
         self.frameCenter.grid(row=0,column=1,sticky=NSEW)
 
-        #-----------mensaje de bienvenida
+
         BienveProductos = ttk.Label(self.frameLeft, text='BIENVENIDO AL GESTOR,{}'.format(self.txtUsuario), width=15)
         BienveProductos.grid(row=0, column=0, padx=10, pady=10)
-        #-------------BOTONES-----
-        btnProductos=ttk.Button(self.frameLeft, text='Productos', width=15,command=lambda: [self.ventanaListaProductos(),self.configurar_VentanaListaProductos()])
+
+        btnProductos=ttk.Button(self.frameLeft, text='Productos', width=15,
+                                command=lambda: [self.ventanaListaProductos(),
+                                                 self.configurar_VentanaListaProductos()])
         btnProductos.grid(row=0,column=0,padx=10,pady=10)
 
-
         btnClientes=ttk.Button(self.frameLeft, text='Proveedores',width=15,
-                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),self.configurar_VentanaListaProvedor()])
+                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),
+                                                self.configurar_VentanaListaProvedor()])
         btnClientes.grid(row=1,column=0,padx=10,pady=10)
 
-
         btnUsuarios=ttk.Button(self.frameLeft, text='Usuarios',width=15,
-                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),self.configurar_VentanaListaUsuarios()])
+                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),
+                                                self.configurar_VentanaListaUsuarios()])
         btnUsuarios.grid(row=2,column=0,padx=10,pady=10)
 
-        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,command=lambda :[self.mostrarHistorial(),self.configurar_VentanaListaHistorial()])
+        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,
+                               command=lambda :[self.mostrarHistorial(),
+                                                self.configurar_VentanaListaHistorial()])
         btnReportes.grid(row=3,column=0,padx=10,pady=10)
         
         btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar DB',width=15,command=self.subventanborrarTabla)
         btnRestaurar_DB.grid(row=4,column=0,padx=10,pady=10)
     def logueo(self):
-        # Capturar errores
-        try:
-            # Establecer conexión
-            db = Login()
 
+        try:
+            db = Login()
             nombreUsuario = self.txtUsuario.get()
             claveUsuario = self.txtClave.get()
-            # Traer todos los registros y guardar en "datos"
+
             datosLogueo = db.verificacion(nombreUsuario, claveUsuario)
 
             if datosLogueo:
@@ -99,20 +101,16 @@ class Ventana(tb.Window):
                     rolUsuario = row[3]
 
                 if nomUsuario == self.txtUsuario.get() and claUsuario == self.txtClave.get():
-                    # Almacenar el rol del usuario actual en una variable de instancia
+
                     self.rol_usuario_actual = rolUsuario
 
-                    # Ocultar ventana de login
                     self.frame_login.pack_forget()
-                    # Abrir ventana de menú
+
                     self.ventanaMenu()
             else:
                 messagebox.showerror("INICIO SECION","DATOS INCORRECTOS")
 
-            # Aplicar Cambios
-
         except sqlite3.Error as e:
-            # Mensaje de error por si acaso
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
     def configurar_VentanaMenu(self):
         global app
@@ -132,7 +130,6 @@ class Ventana(tb.Window):
 
         self.txtBusquedaUsuarios=ttk.Entry(self.lblframeBusqListUsu,width=100)
         self.txtBusquedaUsuarios.grid(row=0,column=0,padx=5,pady=5)
-        # Condicional para buscar Prove - Usua
         if mostrar_proveedores:
             self.txtBusquedaUsuarios.bind('<Key>', self.buscarProveedores)
 
@@ -145,7 +142,9 @@ class Ventana(tb.Window):
 
         columnas=("codigo", "nombre", "clave", "rol")
 
-        self.TreelistUsuarios=tb.Treeview(self.lblframeTreeListUsu,columns=columnas,height=17,show='headings',bootstyle='info')
+        self.TreelistUsuarios=tb.Treeview(self.lblframeTreeListUsu,
+                                          columns=columnas,height=17,
+                                          show='headings',bootstyle='info')
         self.TreelistUsuarios.grid(row=0,column=0)
 
         self.TreelistUsuarios.heading("codigo",text="Codigo",anchor=W)
@@ -154,21 +153,17 @@ class Ventana(tb.Window):
         self.TreelistUsuarios.heading("rol",text="Rol",anchor=W)
 
 
-        self.TreelistUsuarios['displaycolumns']=['codigo','nombre','rol']#Solo apareceran 3 pq la clave es secreta SAPAZO
+        self.TreelistUsuarios['displaycolumns']=['codigo','nombre','rol']
 
-        #Creando el rico scrollbar
         TreeScrollListUsu=tb.Scrollbar(self.frameListaUsuarios,bootstyle='round-success')
         TreeScrollListUsu.grid(row=2,column=1)
         #Configu el scroll
         TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
 
-        #Condicionales para la seleccion de Botnoes Proveedor y Usuarios
         if mostrar_proveedores:
             btnNuevoUsuario = tb.Button(self.lblframeBotonesListUsu, text='Lista Productos', width=15,
                                         bootstyle="success", command=self.ventanaListaProductosProvedor)
             btnNuevoUsuario.grid(row=0, column=0, padx=5, pady=5)
-
-
             self.mostrar_proveedores()
 
         else:
@@ -192,34 +187,33 @@ class Ventana(tb.Window):
         print("estoy cambiando")
         return app
     def MostrarUsuarios(self):
-        #Capturar errores
+
         try:
-            #Establecer conexión
+
             db = Crud_Usuarios()
-            #Crear cursor
-            # Consultar DB
+
             datos=db.Mostrar_Usuarios()
-            #Limpiar data del treeview
+
             registros=self.TreelistUsuarios.get_children()
-            #Recorrer registros
+
             for elementos in registros:
                 self.TreelistUsuarios.delete(elementos)
-            #Recorrer cada fila encontrada
+
             for row in datos:
-                #Llenar treewbiew
+
                 self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
-            #Aplicar Cambios
 
         except sqlite3.Error as e:
-            #Mensaje de error porsiaca
+
             print("Error de SQLite:", e)
-            messagebox.showerror("Lista de Usuario", f"Ocurrió un error al mostrar la lista de usuario: {e}")
+            messagebox.showerror("Lista de Usuario",
+                                 f"Ocurrió un error al mostrar la lista de usuario: {e}")
     def ventanaNuevoUsuario(self):
-        self.frameNewUser=Toplevel(self)#Ventana por encima de la lista de usuarios
+        self.frameNewUser=Toplevel(self)
         self.frameNewUser.title('Nuevo Usuario')
-        self.frameNewUser.geometry("400x300")#tamaño
-        self.frameNewUser.resizable(0,0)#Para que no se maximice ni minimice
-        self.frameNewUser.grab_set()#Para que no permita otra acción hasta que se cierre pues
+        self.frameNewUser.geometry("400x300")
+        self.frameNewUser.resizable(False,False)
+        self.frameNewUser.grab_set()
 
         lblframeNewUser=LabelFrame(self.frameNewUser)
         lblframeNewUser.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
@@ -241,7 +235,8 @@ class Ventana(tb.Window):
 
         lblRolNewUser=Label(lblframeNewUser,text='Rol')
         lblRolNewUser.grid(row=3,column=0,padx=10,pady=10,sticky=E)
-        self.txtRolNewUser=ttk.Combobox(lblframeNewUser,values=('Administrador','Proveedor','Vendedor'),width=38,state='readonly')
+        self.txtRolNewUser=ttk.Combobox(lblframeNewUser,values=('Administrador','Proveedor','Vendedor'),
+                                        width=38,state='readonly')
         self.txtRolNewUser.grid(row=3,column=1,padx=10,pady=10)
         self.txtRolNewUser.current(0)
 
@@ -250,16 +245,14 @@ class Ventana(tb.Window):
         
         self.registrar_en_historial("Usuario ha sido creado por: ", self.txtUsuario.get())
 
-        #Llamamos a la funcion ultimo usuario
         self.ultimoUsuario()
-        #Foco en el nombre usuario
+
         self.txtNameNewUser.focus()
     def guardarUsuario(self):
-        #Validacion pa que no queden vacios los campos
+
         if self.txtCodeNewUser.get()=="" or self.txtNameNewUser.get()=="" or self.txtClaveNewUser.get()=="":
             messagebox.showwarning('Guardando usuarios', 'Algún campo no es válido, por favor revisar')
             return
-        #Capturar errores
         try:
 
             db = Crud_Usuarios()
@@ -273,25 +266,18 @@ class Ventana(tb.Window):
 
             messagebox.showinfo('Guardando Usuarios', "Usuario Guardado Correctamente")
 
-            self.frameNewUser.destroy()#Cerrala ventana
-            self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
+            self.frameNewUser.destroy()
+            self.ventanaListaUsuarios()
             #Cerrar la conexi
 
         except:
             messagebox.showerror("Guardando Usuarios","Ocurrió un error al Guardar Usuario")
     def ultimoUsuario(self):
-         #Capturar errores
         try:
-            #Establecer conexión
-            miConexion=sqlite3.connect('whatislove.db')
-            #Crear cursor
-            miCursor=miConexion.cursor()
-            #Limpiar data del treeview
-
-            miCursor.execute("SELECT MAX(Codigo) FROM Usuarios")
-            #Traer todos los registros y guardar en "datos"
-            datos=miCursor.fetchone()#Solo necesita un dato
+            db = Crud_Usuarios()
+            datos = db.Ultimo_Usuario()
             for codusu in datos:
+                codusu = codusu[0]
                 if codusu==None:
                     self.ultusu=(int(1))
                     self.txtCodeNewUser.config(state=NORMAL)
@@ -311,16 +297,9 @@ class Ventana(tb.Window):
                     self.txtCodeNewUser.config(state=NORMAL)
                     self.txtCodeNewUser.insert(0,self.ultusu)
                     self.txtCodeNewUser.config(state='readonly')
+        except ValueError as e:
+            print("error {}".format(e))
 
-
-            #Aplicar Cambios
-            miConexion.commit()
-            #Cerrar la conexion
-            miConexion.close()
-
-        except:
-            #Mensaje de error porsiaca
-            print("Ocurrió un error")
     def buscarUsuarios(self,event):
         try:
             db = Crud_Usuarios()
@@ -336,24 +315,24 @@ class Ventana(tb.Window):
                 datos = db.Buscar_Usuario(busqueda)
 
             for row in datos:
-                #Llenar treewbiew
+
                 self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
         except:
-            #Mensaje de error porsiaca
+
             print("Busqueda de usuarios","Ocurrió un error al buscar en la lista de usuarios")
 
     def ventanaModificarUsuario(self):
-        #Aca se valida que se abra la ventana solamente si hay algun valor seleccionado
+
         self.usuarioSeleccionado=self.TreelistUsuarios.focus()
         self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,'values')
 
         if self.ValModUsu!='':
-            self.frameModifyUser=Toplevel(self)#Ventana por encima de la lista de usuarios
+            self.frameModifyUser=Toplevel(self)
             self.frameModifyUser.title('Nuevo Usuario')
             self.frameModifyUser.geometry('400x300')
-            #self.CentrarVentanaModificarUser(400,300)#tamaño
-            self.frameModifyUser.resizable(0,0)#Para que no se maximice ni minimice
-            self.frameModifyUser.grab_set()#Para que no permita otra acción hasta que se cierre pues
+
+            self.frameModifyUser.resizable(False,False)
+            self.frameModifyUser.grab_set()
 
             lblModifyUser=LabelFrame(self.frameModifyUser)
             lblModifyUser.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
@@ -382,15 +361,15 @@ class Ventana(tb.Window):
             btnSaveModifyUser=ttk.Button(lblModifyUser,text='Modificar',width=38,bootstyle='warning', command=self.modificarUsuario)
             btnSaveModifyUser.grid(row=4,column=1,padx=10,pady=10)
             self.llenarEntrysPaModificarUser()
-            #Foco en el nombre usuario
+
             self.txtNameModifyUser.focus()
     def llenarEntrysPaModificarUser(self):
-        #Limpiar los entrys
+
         self.txtCodeModifyUser.delete(0,END)
         self.txtNameModifyUser.delete(0,END)
         self.txtClaveModifyUser.delete(0,END)
         self.txtRolModifyUser.delete(0,END)
-        #Llenar los entrys
+
         self.txtCodeModifyUser.insert(0,self.ValModUsu[0])
         self.txtCodeModifyUser.config(state='readonly')
         self.txtNameModifyUser.insert(0,self.ValModUsu[1])
@@ -398,22 +377,25 @@ class Ventana(tb.Window):
         self.txtRolModifyUser.insert(0,self.ValModUsu[3])
         self.txtRolModifyUser.config(state='readonly')
     def modificarUsuario(self):
-        #Validacion pa que no queden vacios los campos
+
         if self.txtCodeModifyUser.get()=="" or self.txtNameModifyUser.get()=="" or self.txtClaveModifyUser.get()=="":
             messagebox.showwarning('Modificando usuarios', 'Algún campo no es válido, por favor revisar')
             return
-        #Capturar errores
+
         try:
-            #Establecer conexión
+
             miConexion=sqlite3.connect('whatislove.db')
             #Crear cursor
             miCursor=miConexion.cursor()
 
-            datosModificarUsuarios=self.txtNameModifyUser.get(),self.txtClaveModifyUser.get(),self.txtRolModifyUser.get()            #Consultar DB
-            miCursor.execute("UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo="+self.txtCodeModifyUser.get(),(datosModificarUsuarios))
-            #Traer todos los registros y guardar en "datos"
+            datosModificarUsuarios=(self.txtNameModifyUser.get(),
+                                    self.txtClaveModifyUser.get(),
+                                    self.txtRolModifyUser.get())
+            miCursor.execute("UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo="+self.txtCodeModifyUser.get(),
+                             (datosModificarUsuarios))
+
             messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
-            #Aplicar Cambios
+
             miConexion.commit()
 
             self.ValModUsu=self.TreelistUsuarios.item(
@@ -423,10 +405,10 @@ class Ventana(tb.Window):
                         self.txtClaveModifyUser.get(),
                         self.txtRolModifyUser.get(),))
 
-            self.registrar_en_historial(f"{self.txtNameModifyUser.get()} ha sido modificado por: ", self.txtUsuario.get())
-            self.frameModifyUser.destroy()#Cerrala ventana
-            self.ventanaListaUsuarios()#Carga nuevamente la ventana pa ver los cambios
-            #Cerrar la conexion
+            self.registrar_en_historial(f"{self.txtNameModifyUser.get()} ha sido modificado por: ",
+                                        self.txtUsuario.get())
+            self.frameModifyUser.destroy()
+            self.ventanaListaUsuarios()
             miConexion.close()
 
         except:
@@ -617,31 +599,31 @@ class Ventana(tb.Window):
         print("estoy cambiando")
         return app
     def MostrarProductos(self):
-        #Capturar errores
+
         try:
             Crud = Crud_Productos()
             datos = Crud.mostrar_productos()
 
-            #Limpiar data del treeview
             registros=self.TreelistProductosProductos.get_children()
-            #Recorrer registros
+
             for elementos in registros:
                 self.TreelistProductosProductos.delete(elementos)
-            #Traer todos los registros y guardar en "datos"
-            #Recorrer cada fila encontrada
+
             for row in datos:
-                self.TreelistProductosProductos.insert("","end",text=row[0],values=(row[1],row[2],row[0],row[3],row[4],row[5],row[6]))
+                self.TreelistProductosProductos.insert("","end",
+                                                       text=row[0],
+                                                       values=(row[1],row[2],row[0],row[3],row[4],row[5],row[6]))
 
         except sqlite3.Error as e:
-            #Mensaje de error porsiaca
+
             print("Error de SQLite:", e)
             messagebox.showerror("Lista de Usuario", f"Ocurrió un error al mostrar la lista de usuario: {e}")
     def ventanaNuevoProducto(self):
-        self.frameNewProduct=Toplevel(self)#Ventana por encima de la lista de usuarios
+        self.frameNewProduct=Toplevel(self)
         self.frameNewProduct.title('Nuevo Producto')
-        self.frameNewProduct.geometry("410x380+700+320")#tamaño
-        self.frameNewProduct.resizable(False,False)#Para que no se maximice ni minimice
-        self.frameNewProduct.grab_set()#Para que no permita otra acción hasta que se cierre pues
+        self.frameNewProduct.geometry("410x380+700+320")
+        self.frameNewProduct.resizable(False,False)
+        self.frameNewProduct.grab_set()
 
         self.db = Consulta_Proveedor()
         self.datos = self.db.Obetener_proveedores()
@@ -676,12 +658,8 @@ class Ventana(tb.Window):
         self.txtDescripcionNewProduct = ttk.Entry(lblframeNewProduc, width=40)
         self.txtDescripcionNewProduct.grid(row=4, column=1, padx=10, pady=10)
 
-
-
         btnSaveNewProduct=ttk.Button(lblframeNewProduc,text='Guardar',width=38,command=self.guardarProducto)
         btnSaveNewProduct.grid(row=5,column=1,padx=10,pady=10)
-        
-        #Foco en el nombre usuario
         self.txtNameNewProduct.focus()
 
     def eliminar_letras(self,cadena):
@@ -691,7 +669,7 @@ class Ventana(tb.Window):
                 solo_numeros += caracter
         return solo_numeros
     def guardarProducto(self):
-        #Validacion pa que no queden vacios los campos
+
         if (self.txtCodeNewProduc.get()==""
                 or self.txtNameNewProduct.get()==""
                 or self.txtPrecioNewProduct.get()==""
@@ -708,12 +686,11 @@ class Ventana(tb.Window):
                                    self.txtPrecioNewProduct.get(),self.txtStockNewProduct.get(),
                                    self.txtDescripcionNewProduct.get()
                                    )
-            #Traer todos los registros y guardar en "datos"
             messagebox.showinfo('Guardando Producto', "Usuario Guardado Correctamente")
-            self.frameNewProduct.destroy()#Cerrala ventana
+            self.frameNewProduct.destroy()
             self.registrar_en_historial(f"Un Producto a sido agregago por : ",
                                         self.txtUsuario.get())
-            self.ventanaListaProductos()#Carga nuevamente la ventana pa ver los cambios
+            self.ventanaListaProductos()
             #Cerrar la conexion
         except sqlite3.Error as e:
             print("Error de SQLite:", e)
@@ -745,21 +722,19 @@ class Ventana(tb.Window):
             # Mensaje de error porsiaca
             print("Busqueda de productos", f"Ocurrió un error al buscar en la lista de productos: {e}")
     def ventanaModificarProductos(self):
-        #Aca se valida que se abra la ventana solamente si hay algun valor seleccionado
+
         self.ProductoSeleccionado=self.TreelistProductosProductos.focus()
         self.ValModPro=self.TreelistProductosProductos.item(self.ProductoSeleccionado,'values')
 
         if self.ValModPro!='':
-            self.frameModifyProduc=Toplevel(self)#Ventana por encima de la lista de usuarios
+            self.frameModifyProduc=Toplevel(self)
             self.frameModifyProduc.title('Nuevo Usuario')
             self.frameModifyProduc.geometry('500x430+700+320')
             #self.CentrarVentanaModificarUser(400,300)#tamaño
-            self.frameModifyProduc.resizable(0,0)#Para que no se maximice ni minimice
-            self.frameModifyProduc.grab_set()#Para que no permita otra acción hasta que se cierre pues
-
+            self.frameModifyProduc.resizable(False,False)
+            self.frameModifyProduc.grab_set()
             self.db = Consulta_Proveedor()
             self.datos = self.db.Obetener_proveedores()
-
             lblModifyProduct=LabelFrame(self.frameModifyProduc)
             lblModifyProduct.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
 
@@ -803,14 +778,14 @@ class Ventana(tb.Window):
             #Foco en el nombre usuario
             self.txtNewNameModifyProduct.focus()
     def llenarEntrysPaModificarProducts(self):
-        #Limpiar los entrys
+
         self.txtCodeProductoModifyProduct.delete(0,END)
         self.txtCodeProveModifyProduct.delete(0,END)
         self.txtNewNameModifyProduct.delete(0,END)
         self.txtPrecioModifyProduct.delete(0,END)
         self.txtStockModifyProduct.delete(0,END)
         self.txtDescripModifyProduct.delete(0,END)
-        #Llenar los entrys
+
         self.txtCodeProductoModifyProduct.insert(0,self.ValModPro[0])
         self.txtCodeProductoModifyProduct.config(state='readonly')
         self.txtCodeProveModifyProduct.insert(0,self.ValModPro[1])
@@ -819,7 +794,7 @@ class Ventana(tb.Window):
         self.txtStockModifyProduct.insert(0,self.ValModPro[5])
         self.txtDescripModifyProduct.insert(0,self.ValModPro[6])
     def modificarProducto(self):
-        #Validacion pa que no queden vacios los campos
+
         if (self.txtCodeProductoModifyProduct.get()=="" 
             or self.txtCodeProveModifyProduct.get()=="" 
             or self.txtNewNameModifyProduct.get()=="" 
@@ -828,9 +803,9 @@ class Ventana(tb.Window):
             or self.txtDescripModifyProduct.get() == ""):
             messagebox.showwarning('Modificando usuarios', 'Algún campo no es válido, por favor revisar')
             return 
-        #Capturar errores
+
         try:
-            #Establecer conexión
+
             Crud = Crud_Productos()
             dato_nuevo = self.eliminar_letras(self.txtCodeProveModifyProduct.get())
             datosModificarUsuarios=(
@@ -839,10 +814,10 @@ class Ventana(tb.Window):
             self.txtPrecioModifyProduct.get(),
             self.txtStockModifyProduct.get(),
             self.txtDescripModifyProduct.get()) 
-            #Consultar DB
+
             Crud.Modificar_Producto(self.txtCodeProductoModifyProduct.get(),datosModificarUsuarios)
             messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
-            #Aplicar Cambios
+
             self.ValModPro=self.TreelistProductosProductos.item(
                 self.ProductoSeleccionado,
                 text='',
@@ -856,33 +831,26 @@ class Ventana(tb.Window):
 
             self.registrar_en_historial(f"{self.txtNewNameModifyProduct.get()} ha sido modificado por: ",
                                         self.txtUsuario.get())
-            self.frameModifyProduc.destroy()#Cerrala ventana
-            self.ventanaListaProductos()#Carga nuevamente la ventana pa ver los cambios
-            #Cerrar la conexion
-
+            self.frameModifyProduc.destroy()
+            self.ventanaListaProductos()
 
         except sqlite3.Error as e:
             print("Error de SQLite:", e)
             messagebox.showerror("Modificar Usuarios", f"Ocurrió un error al Modificar Usuario: {e}")
     def borrarProducto(self):
-        # Obtén el producto seleccionado
+
         producto_seleccionado = self.TreelistProductosProductos.focus()
         valores_producto = self.TreelistProductosProductos.item(producto_seleccionado, 'values')
 
         if not valores_producto:
             messagebox.showwarning('Borrar Producto', 'Selecciona un producto para borrar.')
             return
-
-        # Obtén el ID del producto seleccionado
         id_producto = valores_producto[0]
 
-        # Capturar errores
         try:
-            # Establecer conexión
             db = Crud_Productos()
-            #borramos el producto
             db.Borrar_Producto(id_producto)
-            # Actualizar la vista de productos
+
             self.ventanaListaProductos()
             messagebox.showinfo('Borrar Producto', 'Producto borrado correctamente.')
             self.registrar_en_historial("Un Producto ha sido borrado por: ", self.txtUsuario.get())
@@ -891,11 +859,9 @@ class Ventana(tb.Window):
 
     #----------Historial------------
     def mostrarHistorial(self):
-    # Limpiar contenido del frame actual
         for widget in self.frameCenter.winfo_children():
             widget.destroy()
 
-        # Crear el Treeview en el mismo frame
         self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id","fecha_hora", "accion", "usuario"), height=17, show='headings',bootstyle='danger')
         self.TreelistHistorial.grid(row=0, column=0)
 
@@ -904,7 +870,6 @@ class Ventana(tb.Window):
         self.TreelistHistorial.heading("fecha_hora", text="Fecha y Hora", anchor=W)
         self.TreelistHistorial.heading("usuario", text="Usuario", anchor=W)
 
-        # Obtener datos del historial desde la base de datos y cargar en el Treeview
         self.cargarHistorial()
     def configurar_VentanaListaHistorial(self):
         global app
@@ -914,7 +879,6 @@ class Ventana(tb.Window):
     def cargarHistorial(self):
         try:
             db = Consulta_Historial()
-
             datosHistorial = db.Cargar_Historial()
 
             for row in datosHistorial:
@@ -925,12 +889,10 @@ class Ventana(tb.Window):
     def registrar_en_historial(self, accion, usuario):
         try:
             db = Consulta_Historial()
-            # Obtener la fecha y hora actual
+
             fecha_hora_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            # Insertar en la tabla de historial
             db.Registro_Historial(fecha_hora_actual, accion,usuario)
-
 
         except sqlite3.Error as e:
             messagebox.showerror("Registro en Historial", f"Error al registrar en el historial: {e}")
@@ -960,7 +922,6 @@ class Ventana(tb.Window):
         messagebox.showinfo("Borrar Tabla Producto", "Tabla exitosamente Borrada")
         self.mostrarHistorial()
         self.frameborrarTabla.destroy()
-
 
 #--------Arranque------------
 def main():
