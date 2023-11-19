@@ -7,6 +7,7 @@ from CONSULTA_PROVEDORES import Consulta_Proveedor
 from CONSULTA_HISTORIAL import Consulta_Historial
 from CONSULTA_LOGIN import Login
 from CRUD_USUARIOS import Crud_Usuarios
+from CONSULTA_EXPORTACION import Consulta_Exportacion
 import pandas as pd
 import sqlite3
 from tkinter import simpledialog
@@ -646,7 +647,7 @@ class Ventana(tb.Window):
         except sqlite3.Error as e:
 
             print("Error de SQLite:", e)
-            messagebox.showerror("Lista de Usuario", f"Ocurrió un error al mostrar la lista de usuario: {e}")
+            messagebox.showerror("Lista de Productos", f"Ocurrió un error al mostrar la lista de Productos: {e}")
     def ventanaNuevoProducto(self):
         self.frameNewProduct=Toplevel(self)
         self.frameNewProduct.title('Nuevo Producto')
@@ -829,7 +830,7 @@ class Ventana(tb.Window):
             or self.txtPrecioModifyProduct.get()=="" 
             or self.txtStockModifyProduct.get()=="" 
             or self.txtDescripModifyProduct.get() == ""):
-            messagebox.showwarning('Modificando usuarios', 'Algún campo no es válido, por favor revisar')
+            messagebox.showwarning('Modificando Producto', 'Algún campo no es válido, por favor revisar')
             return 
 
         try:
@@ -844,7 +845,7 @@ class Ventana(tb.Window):
             self.txtDescripModifyProduct.get()) 
 
             Crud.Modificar_Producto(self.txtCodeProductoModifyProduct.get(),datosModificarUsuarios)
-            messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
+            messagebox.showinfo('Modificar Producto', "Producto Modificado Correctamente")
 
             self.ValModPro=self.TreelistProductosProductos.item(
                 self.ProductoSeleccionado,
@@ -864,7 +865,7 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             print("Error de SQLite:", e)
-            messagebox.showerror("Modificar Usuarios", f"Ocurrió un error al Modificar Usuario: {e}")
+            messagebox.showerror("Modificar Producto", f"Ocurrió un error al Modificar Producto: {e}")
     def borrarProducto(self):
 
         producto_seleccionado = self.TreelistProductosProductos.focus()
@@ -901,7 +902,6 @@ class Ventana(tb.Window):
     def configurar_VentanaListaHistorial(self):
         global app
         app.geometry("950x300+450+300")
-        print("estoy cambiando")
         return app
     def cargarHistorial(self):
         try:
@@ -968,28 +968,20 @@ class Ventana(tb.Window):
         btnExpoExcel.grid(row=2, column=1, padx=10, pady=10)
 
     def obtenerDatosExportar(self):
+        db = Consulta_Exportacion()
         if self.txtTablaImpre.get() == "Historial":
             dato = self.txtTablaImpre.get()
             conexion=sqlite3.connect('whatislove.db')
-            consulta="SELECT * FROM {}".format(dato)
+            consulta=db.Obtener_Datos_Exportar(dato)
 
             df=pd.read_sql_query(consulta,conexion)
-
-            conexion.close()
             return df
         elif self.txtTablaImpre.get() == "Producto":
             dato = self.txtTablaImpre.get()
             conexion = sqlite3.connect('whatislove.db')
-            consulta = ("SELECT Usuarios.Nombre AS Nombre_Provedor,"
-                        "{0}.Codigo_Proveedor,"
-                        " {0}.idProducto, "
-                        "{0}.nombreProducto,{0}.precio,"
-                        "{0}.stock,{0}.descripcion FROM {0} "
-                        "JOIN Usuarios ON {0}.Codigo_Proveedor = Usuarios.Codigo ".format(dato))
+            consulta = db.Obtener_Datos_Exportar(dato)
 
             df = pd.read_sql_query(consulta, conexion)
-
-            conexion.close()
             return df
     
     def Imprimir_a_excel(self):

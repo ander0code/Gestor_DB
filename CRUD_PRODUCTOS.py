@@ -22,8 +22,12 @@ class Crud_Productos:
                          txtDescripcionNewProduct):
         try:
 
-            self.miCursor.execute("INSERT INTO Producto (Codigo_Proveedor,nombreProducto,precio,stock,descripcion) VALUES(?,?,?,?,?)",
-                                  (txtCodeNewProduc,txtNameNewProduct,txtPrecioNewProduct,txtStockNewProduct,txtDescripcionNewProduct))
+            self.miCursor.execute("INSERT INTO Producto (Codigo_Proveedor,nombreProducto,precio,stock,descripcion) "
+                                  "VALUES(?,?,?,?,?)",
+                                  (txtCodeNewProduc,
+                                   txtNameNewProduct,
+                                   txtPrecioNewProduct,
+                                   txtStockNewProduct,txtDescripcionNewProduct))
             self.db.commit()
             print("agregado exitosamente")
             return True
@@ -50,7 +54,8 @@ class Crud_Productos:
 
         try:
             self.miCursor.execute(
-                "UPDATE Producto SET Codigo_Proveedor=?,nombreProducto=?,precio=?,stock = ? ,descripcion=? WHERE idProducto=" + txtCodeProductoModifyProduct,
+                "UPDATE Producto SET Codigo_Proveedor=?,nombreProducto=?,precio=?,stock = ? ,descripcion=? "
+                "WHERE idProducto=" + txtCodeProductoModifyProduct,
                 datosModificarUsuarios
             )
             self.db.commit()
