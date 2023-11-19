@@ -5,7 +5,6 @@ class Consulta_Historial:
         self.db = Base_Datos().conexion
         self.miCursor = self.db.cursor()
 
-
     def Cargar_Historial(self):
         try:
             self.miCursor.execute("SELECT * FROM Historial")

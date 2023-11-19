@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import ttk ,messagebox
+from tkinter import ttk, messagebox
 import ttkbootstrap as tb
 from datetime import datetime
 from CRUD_PRODUCTOS import Crud_Productos
@@ -7,12 +7,17 @@ from CONSULTA_PROVEDORES import Consulta_Proveedor
 from CONSULTA_HISTORIAL import Consulta_Historial
 from CONSULTA_LOGIN import Login
 from CRUD_USUARIOS import Crud_Usuarios
+import pandas as pd
 import sqlite3
 from tkinter import simpledialog
+from tkinter import filedialog
+#pip install openpyxl <-
+
 
 class Ventana(tb.Window):
     global app
     app = None
+
     def __init__(self):
         super().__init__()
         self.ventanaLogin()
@@ -38,7 +43,6 @@ class Ventana(tb.Window):
 
         btnAcceso = ttk.Button(self.lblframe_login, text='Log in',bootstyle="info", command=self.logueo)
         btnAcceso.pack(padx=10, pady=10)
-
     def set_placeholder(self, entry_widget, placeholder):
         entry_widget.insert(0, placeholder)
         entry_widget.bind("<FocusIn>", lambda event: self.on_entry_click(entry_widget, placeholder))
@@ -46,11 +50,9 @@ class Ventana(tb.Window):
     def on_entry_click(self, entry_widget, placeholder):
         if entry_widget.get() == placeholder:
             entry_widget.delete(0, END)
-
     def on_focus_out(self, entry_widget, placeholder):
         if entry_widget.get() == "":
             entry_widget.insert(0, placeholder)
-
     def ventanaMenu(self):
         self.configurar_VentanaMenu()
         self.frameLeft=Frame(self,width=200)
@@ -81,9 +83,14 @@ class Ventana(tb.Window):
                                command=lambda :[self.mostrarHistorial(),
                                                 self.configurar_VentanaListaHistorial()])
         btnReportes.grid(row=3,column=0,padx=10,pady=10)
-        
-        btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar DB',width=15,command=self.subventanborrarTabla)
-        btnRestaurar_DB.grid(row=4,column=0,padx=10,pady=10)
+
+        btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15, command=self.ventana_Imprimir_Resgistro)
+        btnExportarDB.grid(row=4, column=0, padx=10, pady=10)
+
+        btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar Tabla',width=15,command=self.subventanborrarTabla)
+        btnRestaurar_DB.grid(row=5,column=0,padx=10,pady=10)
+
+
     def logueo(self):
 
         try:
@@ -114,9 +121,8 @@ class Ventana(tb.Window):
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
     def configurar_VentanaMenu(self):
         global app
-        app.geometry("130x250+900+300")
+        app.geometry("130x300+900+300")
         return app
-
     #---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores= False):
         self.frameListaUsuarios=Frame(self.frameCenter)
@@ -154,16 +160,21 @@ class Ventana(tb.Window):
 
 
         self.TreelistUsuarios['displaycolumns']=['codigo','nombre','rol']
+        if mostrar_proveedores:
+            self.TreelistUsuarios.bind("<<TreeviewSelect>>", self.activar_boton_historial_proveedor)
+        else:
+            self.TreelistUsuarios.bind("<<TreeviewSelect>>",self.activar_boton_Modificar_Eliminar)
 
-        TreeScrollListUsu=tb.Scrollbar(self.frameListaUsuarios,bootstyle='round-success')
-        TreeScrollListUsu.grid(row=2,column=1)
-        #Configu el scroll
-        TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
+            TreeScrollListUsu=tb.Scrollbar(self.frameListaUsuarios,bootstyle='round-success')
+            TreeScrollListUsu.grid(row=2,column=1)
+            #Configu el scroll
+            TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
 
         if mostrar_proveedores:
-            btnNuevoUsuario = tb.Button(self.lblframeBotonesListUsu, text='Lista Productos', width=15,
-                                        bootstyle="success", command=self.ventanaListaProductosProvedor)
-            btnNuevoUsuario.grid(row=0, column=0, padx=5, pady=5)
+
+            self.btnNuevoUsuario = tb.Button(self.lblframeBotonesListUsu, text='Lista Productos', width=15,
+                                        bootstyle="success", state="disabled",command=self.ventanaListaProductosProvedor)
+            self.btnNuevoUsuario.grid(row=0, column=0, padx=5, pady=5)
             self.mostrar_proveedores()
 
         else:
@@ -172,15 +183,26 @@ class Ventana(tb.Window):
                                         command=self.ventanaNuevoUsuario)
             btnNuevoUsuario.grid(row=0, column=0, padx=5, pady=5)
 
-            btnModificarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Modificar', width=15,
-                                            bootstyle="warning", command=self.ventanaModificarUsuario)
-            btnModificarUsuario.grid(row=0, column=1, padx=5, pady=5)
+            self.btnModificarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Modificar', width=15,
+                                            bootstyle="warning",state="disabled", command=self.ventanaModificarUsuario)
+            self.btnModificarUsuario.grid(row=0, column=1, padx=5, pady=5)
 
-            btnEliminarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Eliminar', width=15, bootstyle="danger",
-                                           command=self.borrarUsuario)
-            btnEliminarUsuario.grid(row=0, column=2, padx=5, pady=5)
+            self.btnEliminarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Eliminar', width=15, bootstyle="danger",
+                                           state="disabled",command=self.borrarUsuario)
+            self.btnEliminarUsuario.grid(row=0, column=2, padx=5, pady=5)
 
             self.MostrarUsuarios()
+    def activar_boton_Modificar_Eliminar(self,event):
+        item_seleccionado = self.TreelistUsuarios.focus()
+        if item_seleccionado:
+            self.btnModificarUsuario.config(state="normal")
+            self.btnEliminarUsuario.config(state="normal")
+    def activar_boton_historial_proveedor(self,event):
+        item_seleccionado = self.TreelistUsuarios.focus()
+        if item_seleccionado:
+            self.btnNuevoUsuario.config(state="normal")
+        else:
+            self.btnNuevoUsuario.config(state="disabled")
     def configurar_VentanaListaUsuarios(self):
         global app
         app.geometry("830x450+500+300")
@@ -211,7 +233,7 @@ class Ventana(tb.Window):
     def ventanaNuevoUsuario(self):
         self.frameNewUser=Toplevel(self)
         self.frameNewUser.title('Nuevo Usuario')
-        self.frameNewUser.geometry("400x300")
+        self.frameNewUser.geometry("400x300+800+350")
         self.frameNewUser.resizable(False,False)
         self.frameNewUser.grab_set()
 
@@ -299,7 +321,6 @@ class Ventana(tb.Window):
                     self.txtCodeNewUser.config(state='readonly')
         except ValueError as e:
             print("error {}".format(e))
-
     def buscarUsuarios(self,event):
         try:
             db = Crud_Usuarios()
@@ -320,7 +341,6 @@ class Ventana(tb.Window):
         except:
 
             print("Busqueda de usuarios","Ocurrió un error al buscar en la lista de usuarios")
-
     def ventanaModificarUsuario(self):
 
         self.usuarioSeleccionado=self.TreelistUsuarios.focus()
@@ -329,7 +349,7 @@ class Ventana(tb.Window):
         if self.ValModUsu!='':
             self.frameModifyUser=Toplevel(self)
             self.frameModifyUser.title('Nuevo Usuario')
-            self.frameModifyUser.geometry('400x300')
+            self.frameModifyUser.geometry('400x300+800+350')
 
             self.frameModifyUser.resizable(False,False)
             self.frameModifyUser.grab_set()
@@ -463,16 +483,16 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             messagebox.showerror("Borrar Usuario", "Ocurrió un error al borrar el usuario: {}".format(e))
-
     def es_administrador_actual(self):
         # Verificar si el rol almacenado es "Administrador"
         return self.rol_usuario_actual == 'Administrador'
 
     # ---------------Proveedor------------
     def ventanaListaProductosProvedor(self):
+
         self.frameListaProductos = Toplevel(self)
         self.frameListaProductos.title('Lista de Productos')
-        self.frameListaProductos.resizable(0, 0)
+        self.frameListaProductos.resizable(False, False)
 
 
         self.frameListaProductos.geometry("1250x340+325+325")
@@ -508,7 +528,6 @@ class Ventana(tb.Window):
         print("estoy cambiando")
         return app
     def mostrar_proveedores(self):
-
         crud = Consulta_Proveedor()
         datos = crud.mostrar_proveedores()
         registros = self.TreelistUsuarios.get_children()
@@ -549,14 +568,17 @@ class Ventana(tb.Window):
         self.lblframeBotonesListProduc=LabelFrame(self.frameListaProducto)
         self.lblframeBotonesListProduc.grid(row=0,column=0,sticky=NSEW)
 
-        btnNuevoProduct=tb.Button(self.lblframeBotonesListProduc,text='Nuevo', width=15,bootstyle="success",command=self.ventanaNuevoProducto)
+        btnNuevoProduct=tb.Button(self.lblframeBotonesListProduc,text='Nuevo', width=15,bootstyle="success",
+                                  command=self.ventanaNuevoProducto)
         btnNuevoProduct.grid(row=0,column=0,padx=5,pady=5)
 
-        btnModificarProduc=tb.Button(self.lblframeBotonesListProduc,text='Modificar', width=15,bootstyle="warning", command=self.ventanaModificarProductos)
-        btnModificarProduc.grid(row=0,column=1,padx=5,pady=5)
+        self.btnModificarProduc=tb.Button(self.lblframeBotonesListProduc,text='Modificar', width=15,bootstyle="warning",
+                                     state="disabled",command=self.ventanaModificarProductos)
+        self.btnModificarProduc.grid(row=0,column=1,padx=5,pady=5)
 
-        btnEliminarProduc=tb.Button(self.lblframeBotonesListProduc,text='Eliminar', width=15,bootstyle="danger",command=self.borrarProducto)
-        btnEliminarProduc.grid(row=0,column=2,padx=5,pady=5)
+        self.btnEliminarProduc=tb.Button(self.lblframeBotonesListProduc,text='Eliminar', width=15,bootstyle="danger",
+                                    state="disabled",command=self.borrarProducto)
+        self.btnEliminarProduc.grid(row=0,column=2,padx=5,pady=5)
 
         self.lblframeBusqListProduct=LabelFrame(self.frameListaProducto)
         self.lblframeBusqListProduct.grid(row=1,column=0,padx=10,pady=10,sticky=NSEW)
@@ -585,6 +607,7 @@ class Ventana(tb.Window):
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
                                                              'producto', 'precio', 'stock', 'descripcion']#Solo apareceran 3 pq la clave es secreta SAPAZO
 
+        self.TreelistProductosProductos.bind("<<TreeviewSelect>>",self.activar_boton_modi_elimi_productos)
         #Creando el rico scrollbar
         TreeScrollListProduct=tb.Scrollbar(self.frameListaProducto,bootstyle='round-success')
         TreeScrollListProduct.grid(row=2,column=1)
@@ -593,6 +616,12 @@ class Ventana(tb.Window):
 
         #Llamar a func mostrar usuarios
         self.MostrarProductos()
+    def activar_boton_modi_elimi_productos(self,event):
+        item_seleccionado = self.TreelistProductosProductos.focus()
+        if item_seleccionado:
+            self.btnModificarProduc.config(state="normal")
+            self.btnEliminarProduc.config(state="normal")
+
     def configurar_VentanaListaProductos(self):
         global app
         app.geometry("1400x450+200+250")
@@ -661,7 +690,6 @@ class Ventana(tb.Window):
         btnSaveNewProduct=ttk.Button(lblframeNewProduc,text='Guardar',width=38,command=self.guardarProducto)
         btnSaveNewProduct.grid(row=5,column=1,padx=10,pady=10)
         self.txtNameNewProduct.focus()
-
     def eliminar_letras(self,cadena):
         solo_numeros = ''
         for caracter in cadena:
@@ -856,7 +884,6 @@ class Ventana(tb.Window):
             self.registrar_en_historial("Un Producto ha sido borrado por: ", self.txtUsuario.get())
         except ValueError as e:
             messagebox.showerror('Borrar Producto', f'Ocurrió un error al borrar el producto: {e}')
-
     #----------Historial------------
     def mostrarHistorial(self):
         for widget in self.frameCenter.winfo_children():
@@ -896,7 +923,6 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             messagebox.showerror("Registro en Historial", f"Error al registrar en el historial: {e}")
-
     #borrar tablas
     def subventanborrarTabla(self):
         self.frameborrarTabla = Toplevel(self)
@@ -923,6 +949,58 @@ class Ventana(tb.Window):
         self.mostrarHistorial()
         self.frameborrarTabla.destroy()
 
+#------------------------- Registro_exel ---------------
+    def ventana_Imprimir_Resgistro(self):
+        self.ventana_Registro_Excel = Toplevel(self)
+        self.ventana_Registro_Excel.title('Extracion')
+        self.ventana_Registro_Excel.geometry("285x150+900+400")
+        self.ventana_Registro_Excel.grab_set()
+        txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',font= ('Coolvetica', 10, 'bold'), wraplength=250)
+        txtTexto.grid(row=0, column=1, padx=10, pady=10)
+
+        selecionTabla = IntVar()
+        self.txtTablaImpre = ttk.Combobox(self.ventana_Registro_Excel, values=("Producto","Historial"),
+                                             textvariable=selecionTabla, width=40)
+        self.txtTablaImpre.grid(row=1, column=1, padx=10, pady=10)
+
+        btnExpoExcel = ttk.Button(self.ventana_Registro_Excel, text='Imprimir', width=15,
+                                    command=self.Imprimir_a_excel)
+        btnExpoExcel.grid(row=2, column=1, padx=10, pady=10)
+
+    def obtenerDatosExportar(self):
+        if self.txtTablaImpre.get() == "Historial":
+            dato = self.txtTablaImpre.get()
+            conexion=sqlite3.connect('whatislove.db')
+            consulta="SELECT * FROM {}".format(dato)
+
+            df=pd.read_sql_query(consulta,conexion)
+
+            conexion.close()
+            return df
+        elif self.txtTablaImpre.get() == "Producto":
+            dato = self.txtTablaImpre.get()
+            conexion = sqlite3.connect('whatislove.db')
+            consulta = ("SELECT Usuarios.Nombre AS Nombre_Provedor,"
+                        "{0}.Codigo_Proveedor,"
+                        " {0}.idProducto, "
+                        "{0}.nombreProducto,{0}.precio,"
+                        "{0}.stock,{0}.descripcion FROM {0} "
+                        "JOIN Usuarios ON {0}.Codigo_Proveedor = Usuarios.Codigo ".format(dato))
+
+            df = pd.read_sql_query(consulta, conexion)
+
+            conexion.close()
+            return df
+    
+    def Imprimir_a_excel(self):
+        df = self.obtenerDatosExportar()
+
+        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
+
+        if file_path:
+            df.to_excel(file_path, index=False)
+            messagebox.showinfo("Consulta Exitosa",f"Tabla {self.txtTablaImpre.get()} exportada exitosamente ")
+            self.ventana_Registro_Excel.destroy()
 #--------Arranque------------
 def main():
     global app
