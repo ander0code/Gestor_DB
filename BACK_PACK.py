@@ -29,7 +29,7 @@ class Ventana(tb.Window):
         self.frame_login = Frame(self)
         self.frame_login.pack()
 
-        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Ingresar', bootstyle="info")
+        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Iniciar Sesión', bootstyle="info")
         self.lblframe_login.pack(padx=10, pady=10)
 
         logo_image = PhotoImage(file='Logo.png')
@@ -50,7 +50,7 @@ class Ventana(tb.Window):
         self.txtClave.configure(show='*')
         self.set_placeholder(self.txtClave, "Contraseña")
 
-        btnAcceso = ttk.Button(self.lblframe_login, text='Log in',bootstyle="info", command=self.logueo)
+        btnAcceso = ttk.Button(self.lblframe_login, text='Ingresar',bootstyle="info", command=self.logueo)
         btnAcceso.pack(padx=10, pady=10)
 
     def set_placeholder(self, entry_widget, placeholder):
@@ -139,7 +139,7 @@ class Ventana(tb.Window):
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
     def configurar_VentanaMenu(self):
         global app
-        app.geometry("185x350+900+300")
+        app.geometry("170x400+900+300")
         return app
     #---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores= False):
@@ -171,10 +171,10 @@ class Ventana(tb.Window):
                                           show='headings',bootstyle='info')
         self.TreelistUsuarios.grid(row=0,column=0)
 
-        self.TreelistUsuarios.heading("codigo",text="Codigo",anchor=W)
-        self.TreelistUsuarios.heading("nombre",text="Nombre",anchor=W)
-        self.TreelistUsuarios.heading("clave",text="Clave",anchor=W)
-        self.TreelistUsuarios.heading("rol",text="Rol",anchor=W)
+        self.TreelistUsuarios.heading("codigo",text="CODIGO",anchor=W)
+        self.TreelistUsuarios.heading("nombre",text="NOMBRE",anchor=W)
+        self.TreelistUsuarios.heading("clave",text="CLAVE",anchor=W)
+        self.TreelistUsuarios.heading("rol",text="ROL",anchor=W)
 
 
         self.TreelistUsuarios['displaycolumns']=['codigo','nombre','rol']
@@ -535,12 +535,12 @@ class Ventana(tb.Window):
         self.TreelistProductosPro = tb.Treeview(self.lblframeTreeListProd, columns=columnas, height=17, show='headings',
                                             bootstyle='info')
         self.TreelistProductosPro.grid(row=0, column=0)
-        self.TreelistProductosPro.heading("ID Producto", text="ID Producto", anchor=W)
-        self.TreelistProductosPro.heading("Nombre_proveedor", text="Nombre_proveedor", anchor=W)
-        self.TreelistProductosPro.heading("Nombre del Producto", text="Nombre del Producto", anchor=W)
-        self.TreelistProductosPro.heading("Precio", text="Precio", anchor=W)
-        self.TreelistProductosPro.heading("Stock", text="Stock", anchor=W)
-        self.TreelistProductosPro.heading("Descripción", text="Descripción", anchor=W)
+        self.TreelistProductosPro.heading("ID Producto", text="ID PRODUCTO", anchor=W)
+        self.TreelistProductosPro.heading("Nombre_proveedor", text="NOMBRE PROVEEDOR", anchor=W)
+        self.TreelistProductosPro.heading("Nombre del Producto", text="NOMBRE PRODUCTO", anchor=W)
+        self.TreelistProductosPro.heading("Precio", text="PRECIO", anchor=W)
+        self.TreelistProductosPro.heading("Stock", text="STOCK", anchor=W)
+        self.TreelistProductosPro.heading("Descripción", text="DESCRIPCIÓN", anchor=W)
 
         self.TreelistProductosPro['displaycolumns'] = ['ID Producto', 'Nombre_proveedor', 'Nombre del Producto',
                                                     'Precio', 'Stock', 'Descripción']
@@ -620,16 +620,17 @@ class Ventana(tb.Window):
 
         columnas=("id_Producto","ID_Proveedor", "NombreProveedor", "producto", "precio", "stock","descripcion")
 
+
         self.TreelistProductosProductos=tb.Treeview(self.lblframeTreeListProduct,columns=columnas,height=17,show='headings',bootstyle='info')
         self.TreelistProductosProductos.grid(row=0,column=0)
 
-        self.TreelistProductosProductos.heading("id_Producto", text="id_Producto", anchor=W)
-        self.TreelistProductosProductos.heading("ID_Proveedor", text="ID Proveedor", anchor=W)
-        self.TreelistProductosProductos.heading("NombreProveedor", text="Nombre Proveedor", anchor=W)
-        self.TreelistProductosProductos.heading("producto", text="producto", anchor=W)
-        self.TreelistProductosProductos.heading("precio", text="precio", anchor=W)
-        self.TreelistProductosProductos.heading("stock", text="stock", anchor=W)
-        self.TreelistProductosProductos.heading("descripcion", text="descripcion", anchor=W)
+        self.TreelistProductosProductos.heading("id_Producto", text="ID PRODUCTO", anchor=W)
+        self.TreelistProductosProductos.heading("ID_Proveedor", text="ID PROVEEDOR", anchor=W)
+        self.TreelistProductosProductos.heading("NombreProveedor", text="NOMBRE PROVEEDOR", anchor=W)
+        self.TreelistProductosProductos.heading("producto", text="PRODUCTO", anchor=W)
+        self.TreelistProductosProductos.heading("precio", text="PRECIO", anchor=W)
+        self.TreelistProductosProductos.heading("stock", text="STOCK", anchor=W)
+        self.TreelistProductosProductos.heading("descripcion", text="DESCRIPCIÓN", anchor=W)
 
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
                                                              'producto', 'precio', 'stock', 'descripcion']#Solo apareceran 3 pq la clave es secreta SAPAZO
@@ -651,7 +652,7 @@ class Ventana(tb.Window):
 
     def configurar_VentanaListaProductos(self):
         global app
-        app.geometry("1400x450+200+250")
+        app.geometry("1450x450+200+250")
         print("estoy cambiando")
         return app
     def MostrarProductos(self):
@@ -687,29 +688,29 @@ class Ventana(tb.Window):
         lblframeNewProduc=LabelFrame(self.frameNewProduct)
         lblframeNewProduc.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
 
-        lblCodeModifyProduct=Label(lblframeNewProduc,text='Id_provedor')
+        lblCodeModifyProduct=Label(lblframeNewProduc,text='ID PROVEEDOR')
         lblCodeModifyProduct.grid(row=0,column=0,padx=10,pady=10,sticky=E)
         selecionProveedor = StringVar()
         self.txtCodeNewProduc = ttk.Combobox(lblframeNewProduc, values=self.datos,
-                                             textvariable=selecionProveedor, width=40)
+                                             textvariable=selecionProveedor, width=40,state='readonly')
         self.txtCodeNewProduc.grid(row=0, column=1, padx=10, pady=10)
 
-        lblNameNewProduct=Label(lblframeNewProduc,text='Producto')
+        lblNameNewProduct=Label(lblframeNewProduc,text='PRODUCTO')
         lblNameNewProduct.grid(row=1,column=0,padx=10,pady=10,sticky=E)
         self.txtNameNewProduct=ttk.Entry(lblframeNewProduc,width=40)
         self.txtNameNewProduct.grid(row=1,column=1,padx=10,pady=10)
 
-        lblPrecioNewProduct=Label(lblframeNewProduc,text='precio')
+        lblPrecioNewProduct=Label(lblframeNewProduc,text='PRECIO')
         lblPrecioNewProduct.grid(row=2,column=0,padx=10,pady=10,sticky=E)
         self.txtPrecioNewProduct=ttk.Entry(lblframeNewProduc,width=40)
         self.txtPrecioNewProduct.grid(row=2,column=1,padx=10,pady=10)
 
-        lblStockNewProduct=Label(lblframeNewProduc,text='stock')
+        lblStockNewProduct=Label(lblframeNewProduc,text='STOCK')
         lblStockNewProduct.grid(row=3,column=0,padx=10,pady=10,sticky=E)
         self.txtStockNewProduct = ttk.Entry(lblframeNewProduc, width=40)
         self.txtStockNewProduct.grid(row=3, column=1, padx=10, pady=10)
 
-        lblDescripcionNewProduct = Label(lblframeNewProduc, text='Descripcion')
+        lblDescripcionNewProduct = Label(lblframeNewProduc, text='DESCRIPCIÓN')
         lblDescripcionNewProduct.grid(row=4, column=0, padx=10, pady=10, sticky=E)
         self.txtDescripcionNewProduct = ttk.Entry(lblframeNewProduc, width=40)
         self.txtDescripcionNewProduct.grid(row=4, column=1, padx=10, pady=10)
@@ -920,14 +921,14 @@ class Ventana(tb.Window):
         self.TreelistHistorial.grid(row=0, column=0)
 
         self.TreelistHistorial.heading("id", text="ID", anchor=W)
-        self.TreelistHistorial.heading("accion", text="Acción", anchor=W)
-        self.TreelistHistorial.heading("fecha_hora", text="Fecha y Hora", anchor=W)
-        self.TreelistHistorial.heading("usuario", text="Usuario", anchor=W)
+        self.TreelistHistorial.heading("accion", text="ACCIÓN", anchor=W)
+        self.TreelistHistorial.heading("fecha_hora", text="FECHA", anchor=W)
+        self.TreelistHistorial.heading("usuario", text="USUARIO", anchor=W)
 
         self.cargarHistorial()
     def configurar_VentanaListaHistorial(self):
         global app
-        app.geometry("950x300+450+300")
+        app.geometry("1050x400+450+300")
         return app
     def cargarHistorial(self):
         try:
@@ -978,7 +979,7 @@ class Ventana(tb.Window):
 #------------------------- Registro_exel ---------------
     def ventana_Imprimir_Resgistro(self):
         self.ventana_Registro_Excel = Toplevel(self)
-        self.ventana_Registro_Excel.title('Extracion')
+        self.ventana_Registro_Excel.title('Extracción')
         self.ventana_Registro_Excel.geometry("285x150+900+400")
         self.ventana_Registro_Excel.grab_set()
         txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',font= ('Coolvetica', 10, 'bold'), wraplength=250)
@@ -986,7 +987,7 @@ class Ventana(tb.Window):
 
         selecionTabla = IntVar()
         self.txtTablaImpre = ttk.Combobox(self.ventana_Registro_Excel, values=("Producto","Historial"),
-                                             textvariable=selecionTabla, width=40)
+                                             textvariable=selecionTabla, width=40,state='readonly')
         self.txtTablaImpre.grid(row=1, column=1, padx=10, pady=10)
 
         btnExpoExcel = ttk.Button(self.ventana_Registro_Excel, text='Imprimir', width=15,
@@ -1024,7 +1025,7 @@ def main():
     global app
     app=Ventana()
     app.title('Back Pack')
-    app.geometry("300x500+500+100")
+    app.geometry("300x500+850+200")
     tb.Style('litera')
     app.iconbitmap("Logo.ico")
     app.mainloop()
