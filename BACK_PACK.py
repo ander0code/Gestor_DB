@@ -24,14 +24,22 @@ class Ventana(tb.Window):
         self.ventanaLogin()
         self.rol_usuario_actual = None
     def ventanaLogin(self):
+        #self.attributes('-fullscreen', True)
+        #self.configurar_VentanaLogin()
         self.frame_login = Frame(self)
         self.frame_login.pack()
 
-        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Acceso', bootstyle="info")
+        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Ingresar', bootstyle="info")
         self.lblframe_login.pack(padx=10, pady=10)
 
-        lbltitulo = ttk.Label(self.lblframe_login, text='Inicio de sesión',bootstyle="light", font=('Arial', 18))
-        lbltitulo.pack(padx=10, pady=35)
+        logo_image = PhotoImage(file='Logo.png')
+
+        # Mostrar el logo en lugar del texto
+        lbllogo = ttk.Label(self.lblframe_login, image=logo_image)
+        lbllogo.image = logo_image  # Mantener una referencia para evitar que el recolector de basura lo elimine
+        lbllogo.pack(padx=10, pady=35)
+        #lbltitulo = ttk.Label(self.lblframe_login, text='Inicar Sesion',bootstyle="light", font=('Arial', 18))
+        #lbltitulo.pack(padx=10, pady=35)
 
         self.txtUsuario = ttk.Entry(self.lblframe_login, width=40,bootstyle='secondary', justify=CENTER)
         self.txtUsuario.pack(padx=10, pady=10)
@@ -44,6 +52,7 @@ class Ventana(tb.Window):
 
         btnAcceso = ttk.Button(self.lblframe_login, text='Log in',bootstyle="info", command=self.logueo)
         btnAcceso.pack(padx=10, pady=10)
+
     def set_placeholder(self, entry_widget, placeholder):
         entry_widget.insert(0, placeholder)
         entry_widget.bind("<FocusIn>", lambda event: self.on_entry_click(entry_widget, placeholder))
@@ -55,41 +64,49 @@ class Ventana(tb.Window):
         if entry_widget.get() == "":
             entry_widget.insert(0, placeholder)
     def ventanaMenu(self):
+        tb.Style('darkly')
         self.configurar_VentanaMenu()
         self.frameLeft=Frame(self,width=200)
         self.frameLeft.grid(row=0,column=0,sticky=NSEW)
         self.frameCenter=Frame(self)
         self.frameCenter.grid(row=0,column=1,sticky=NSEW)
 
-
-        BienveProductos = ttk.Label(self.frameLeft, text='BIENVENIDO AL GESTOR,{}'.format(self.txtUsuario), width=15)
-        BienveProductos.grid(row=0, column=0, padx=10, pady=10)
+        bienvenida_label = ttk.Label(self.frameLeft, text=f'¡Bienvenido, {self.txtUsuario.get()}!',
+                                     font=('Arial', 12, 'bold'))
+        bienvenida_label.grid(row=0, column=0, padx=10, pady=10, sticky=N)
 
         btnProductos=ttk.Button(self.frameLeft, text='Productos', width=15,
                                 command=lambda: [self.ventanaListaProductos(),
                                                  self.configurar_VentanaListaProductos()])
-        btnProductos.grid(row=0,column=0,padx=10,pady=10)
+        btnProductos.grid(row=1, column=0,padx=10,pady=10)
 
         btnClientes=ttk.Button(self.frameLeft, text='Proveedores',width=15,
                                command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),
                                                 self.configurar_VentanaListaProvedor()])
-        btnClientes.grid(row=1,column=0,padx=10,pady=10)
+        btnClientes.grid(row=2,column=0,padx=10,pady=10)
 
         btnUsuarios=ttk.Button(self.frameLeft, text='Usuarios',width=15,
                                command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),
                                                 self.configurar_VentanaListaUsuarios()])
-        btnUsuarios.grid(row=2,column=0,padx=10,pady=10)
+        btnUsuarios.grid(row=3,column=0,padx=10,pady=10)
 
         btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,
                                command=lambda :[self.mostrarHistorial(),
                                                 self.configurar_VentanaListaHistorial()])
-        btnReportes.grid(row=3,column=0,padx=10,pady=10)
+        btnReportes.grid(row=4,column=0,padx=10,pady=10)
 
         btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15, command=self.ventana_Imprimir_Resgistro)
-        btnExportarDB.grid(row=4, column=0, padx=10, pady=10)
+        btnExportarDB.grid(row=5, column=0, padx=10, pady=10)
 
         btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar Tabla',width=15,command=self.subventanborrarTabla)
-        btnRestaurar_DB.grid(row=5,column=0,padx=10,pady=10)
+        btnRestaurar_DB.grid(row=6,column=0,padx=10,pady=10)
+
+        btnSalirDelPrograma = ttk.Button(self.frameLeft, text='Salir', width=15,bootstyle='danger',
+                                     command=self.BtnSalir)
+        btnSalirDelPrograma.grid(row=7, column=0, padx=10, pady=10)
+
+    def BtnSalir(self):
+        self.destroy()
 
 
     def logueo(self):
@@ -122,7 +139,7 @@ class Ventana(tb.Window):
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
     def configurar_VentanaMenu(self):
         global app
-        app.geometry("130x300+900+300")
+        app.geometry("170x400+900+300")
         return app
     #---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores= False):
@@ -232,6 +249,11 @@ class Ventana(tb.Window):
             messagebox.showerror("Lista de Usuario",
                                  f"Ocurrió un error al mostrar la lista de usuario: {e}")
     def ventanaNuevoUsuario(self):
+
+        if not self.es_administrador_actual():
+            messagebox.showwarning('Modificar Usuario', 'No tienes permisos para modificar usuarios')
+            return
+
         self.frameNewUser=Toplevel(self)
         self.frameNewUser.title('Nuevo Usuario')
         self.frameNewUser.geometry("400x300+800+350")
@@ -343,6 +365,10 @@ class Ventana(tb.Window):
 
             print("Busqueda de usuarios","Ocurrió un error al buscar en la lista de usuarios")
     def ventanaModificarUsuario(self):
+
+        if not self.es_administrador_actual():
+            messagebox.showwarning('Modificar Usuario', 'No tienes permisos para modificar usuarios')
+            return
 
         self.usuarioSeleccionado=self.TreelistUsuarios.focus()
         self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,'values')
@@ -625,7 +651,7 @@ class Ventana(tb.Window):
 
     def configurar_VentanaListaProductos(self):
         global app
-        app.geometry("1400x450+200+250")
+        app.geometry("1450x450+200+250")
         print("estoy cambiando")
         return app
     def MostrarProductos(self):
@@ -901,7 +927,7 @@ class Ventana(tb.Window):
         self.cargarHistorial()
     def configurar_VentanaListaHistorial(self):
         global app
-        app.geometry("950x300+450+300")
+        app.geometry("1050x400+450+300")
         return app
     def cargarHistorial(self):
         try:
@@ -998,8 +1024,8 @@ def main():
     global app
     app=Ventana()
     app.title('Back Pack')
-    app.geometry("300x300+800+350")
-    tb.Style('darkly')
+    app.geometry("300x500+850+200")
+    tb.Style('litera')
     app.iconbitmap("Logo.ico")
     app.mainloop()
 
