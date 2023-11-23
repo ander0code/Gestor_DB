@@ -1048,7 +1048,7 @@ def main():
     tb.Style('litera')
     ruta2 = Path(__file__).parent  #Buenas Practicas
     archivo2 = ruta2 / "Logo.ico"
-    app.iconbitmap("Logo.ico")
+    app.iconbitmap(archivo2)
     app.mainloop()
 
 if __name__=='__main__':
