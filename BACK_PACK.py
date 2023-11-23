@@ -10,6 +10,7 @@ from CRUD_USUARIOS import Crud_Usuarios
 from CONSULTA_EXPORTACION import Consulta_Exportacion
 import pandas as pd
 import sqlite3
+from pathlib import Path
 from tkinter import simpledialog
 from tkinter import filedialog
 #pip install openpyxl <-
@@ -32,7 +33,9 @@ class Ventana(tb.Window):
         self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Iniciar Sesión', bootstyle="info")
         self.lblframe_login.pack(padx=10, pady=10)
 
-        logo_image = PhotoImage(file='Logo.png')
+        ruta = Path(__file__).parent  #Buenas Practicas
+        archivo = ruta / "Logo.png"
+        logo_image = PhotoImage(file=archivo)
 
         # Mostrar el logo en lugar del texto
         lbllogo = ttk.Label(self.lblframe_login, image=logo_image)
@@ -95,10 +98,12 @@ class Ventana(tb.Window):
                                                 self.configurar_VentanaListaHistorial()])
         btnReportes.grid(row=4,column=0,padx=10,pady=10)
 
-        btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15, command=self.ventana_Imprimir_Resgistro)
+        btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15,
+                                   command=self.ventana_Imprimir_Resgistro)
         btnExportarDB.grid(row=5, column=0, padx=10, pady=10)
 
-        btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar Tabla',width=15,command=self.subventanborrarTabla)
+        btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar Tabla',width=15,
+                                   command=self.subventanborrarTabla)
         btnRestaurar_DB.grid(row=6,column=0,padx=10,pady=10)
 
         btnSalirDelPrograma = ttk.Button(self.frameLeft, text='Salir', width=15,bootstyle='danger',
@@ -205,8 +210,10 @@ class Ventana(tb.Window):
                                             bootstyle="warning",state="disabled", command=self.ventanaModificarUsuario)
             self.btnModificarUsuario.grid(row=0, column=1, padx=5, pady=5)
 
-            self.btnEliminarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Eliminar', width=15, bootstyle="danger",
-                                           state="disabled",command=self.borrarUsuario)
+            self.btnEliminarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Eliminar',
+                                                width=15,
+                                                bootstyle="danger",
+                                                state="disabled",command=self.borrarUsuario)
             self.btnEliminarUsuario.grid(row=0, column=2, padx=5, pady=5)
 
             self.MostrarUsuarios()
@@ -405,7 +412,8 @@ class Ventana(tb.Window):
             self.txtRolModifyUser.grid(row=3,column=1,padx=10,pady=10)
 
 
-            btnSaveModifyUser=ttk.Button(lblModifyUser,text='Modificar',width=38,bootstyle='warning', command=self.modificarUsuario)
+            btnSaveModifyUser=ttk.Button(lblModifyUser,text='Modificar',width=38,bootstyle='warning',
+                                         command=self.modificarUsuario)
             btnSaveModifyUser.grid(row=4,column=1,padx=10,pady=10)
             self.llenarEntrysPaModificarUser()
 
@@ -484,7 +492,10 @@ class Ventana(tb.Window):
             return
 
         # Pedir confirmación de contraseña
-        contraseña_confirmacion = simpledialog.askstring('Confirmar Eliminación', f'Ingrese la contraseña para confirmar la eliminación del usuario {nombre_usuario}:', show='*')
+        contraseña_confirmacion = simpledialog.askstring(
+            'Confirmar Eliminación',
+            f'Ingrese la contraseña para confirmar la eliminación del usuario {nombre_usuario}:', show='*'
+        )
 
         if not contraseña_confirmacion:
             return  # El usuario cerró la ventana de confirmación o no ingresó contraseña
@@ -621,7 +632,8 @@ class Ventana(tb.Window):
         columnas=("id_Producto","ID_Proveedor", "NombreProveedor", "producto", "precio", "stock","descripcion")
 
 
-        self.TreelistProductosProductos=tb.Treeview(self.lblframeTreeListProduct,columns=columnas,height=17,show='headings',bootstyle='info')
+        self.TreelistProductosProductos=tb.Treeview(self.lblframeTreeListProduct,columns=columnas,
+                                                    height=17,show='headings',bootstyle='info')
         self.TreelistProductosProductos.grid(row=0,column=0)
 
         self.TreelistProductosProductos.heading("id_Producto", text="ID PRODUCTO", anchor=W)
@@ -633,7 +645,8 @@ class Ventana(tb.Window):
         self.TreelistProductosProductos.heading("descripcion", text="DESCRIPCIÓN", anchor=W)
 
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
-                                                             'producto', 'precio', 'stock', 'descripcion']#Solo apareceran 3 pq la clave es secreta SAPAZO
+                                                             'producto', 'precio', 'stock', 'descripcion']
+        #Solo apareceran 3 pq la clave es secreta SAPAZO
 
         self.TreelistProductosProductos.bind("<<TreeviewSelect>>",self.activar_boton_modi_elimi_productos)
         #Creando el rico scrollbar
@@ -674,7 +687,8 @@ class Ventana(tb.Window):
         except sqlite3.Error as e:
 
             print("Error de SQLite:", e)
-            messagebox.showerror("Lista de Productos", f"Ocurrió un error al mostrar la lista de Productos: {e}")
+            messagebox.showerror("Lista de Productos",
+                                 f"Ocurrió un error al mostrar la lista de Productos: {e}")
     def ventanaNuevoProducto(self):
         self.frameNewProduct=Toplevel(self)
         self.frameNewProduct.title('Nuevo Producto')
@@ -772,7 +786,8 @@ class Ventana(tb.Window):
                 # Recorrer cada fila encontrada
             for row in datos:
                     # Llenar treewbiew
-                self.TreelistProductosProductos.insert("", "end", text=row[0], values=(row[1], row[2], row[0], row[3], row[4], row[5],row[6]))
+                self.TreelistProductosProductos.insert("", "end", text=row[0],
+                                                       values=(row[1], row[2], row[0], row[3], row[4], row[5],row[6]))
 
         except sqlite3.Error as e:
             # Mensaje de error porsiaca
@@ -828,7 +843,8 @@ class Ventana(tb.Window):
             
 
 
-            btnSaveModifyUser=ttk.Button(lblModifyProduct,text='Modificar',width=38,bootstyle='warning', command=self.modificarProducto)
+            btnSaveModifyUser=ttk.Button(lblModifyProduct,text='Modificar',width=38,bootstyle='warning',
+                                         command=self.modificarProducto)
             btnSaveModifyUser.grid(row=7,column=1,padx=10,pady=10)
             self.llenarEntrysPaModificarProducts()
             #Foco en el nombre usuario
@@ -917,7 +933,8 @@ class Ventana(tb.Window):
         for widget in self.frameCenter.winfo_children():
             widget.destroy()
 
-        self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id","fecha_hora", "accion", "usuario"), height=17, show='headings',bootstyle='danger')
+        self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id","fecha_hora", "accion", "usuario"),
+                                              height=17, show='headings',bootstyle='danger')
         self.TreelistHistorial.grid(row=0, column=0)
 
         self.TreelistHistorial.heading("id", text="ID", anchor=W)
@@ -982,7 +999,8 @@ class Ventana(tb.Window):
         self.ventana_Registro_Excel.title('Extracción')
         self.ventana_Registro_Excel.geometry("285x150+900+400")
         self.ventana_Registro_Excel.grab_set()
-        txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',font= ('Coolvetica', 10, 'bold'), wraplength=250)
+        txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',
+                             font= ('Coolvetica', 10, 'bold'), wraplength=250)
         txtTexto.grid(row=0, column=1, padx=10, pady=10)
 
         selecionTabla = IntVar()
@@ -1018,7 +1036,8 @@ class Ventana(tb.Window):
 
         if file_path:
             df.to_excel(file_path, index=False)
-            messagebox.showinfo("Consulta Exitosa",f"Tabla {self.txtTablaImpre.get()} exportada exitosamente ")
+            messagebox.showinfo("Consulta Exitosa",
+                                f"Tabla {self.txtTablaImpre.get()} exportada exitosamente")
             self.ventana_Registro_Excel.destroy()
 #--------Arranque------------
 def main():
@@ -1027,6 +1046,8 @@ def main():
     app.title('Back Pack')
     app.geometry("300x500+850+200")
     tb.Style('litera')
+    ruta2 = Path(__file__).parent  #Buenas Practicas
+    archivo2 = ruta2 / "Logo.ico"
     app.iconbitmap("Logo.ico")
     app.mainloop()
 
