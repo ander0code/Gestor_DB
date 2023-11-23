@@ -10,9 +10,10 @@ from CRUD_USUARIOS import Crud_Usuarios
 from CONSULTA_EXPORTACION import Consulta_Exportacion
 import pandas as pd
 import sqlite3
+from pathlib import Path
 from tkinter import simpledialog
 from tkinter import filedialog
-#pip install openpyxl <-
+# pip install openpyxl <-
 
 
 class Ventana(tb.Window):
@@ -23,91 +24,98 @@ class Ventana(tb.Window):
         super().__init__()
         self.ventanaLogin()
         self.rol_usuario_actual = None
+
     def ventanaLogin(self):
-        #self.attributes('-fullscreen', True)
-        #self.configurar_VentanaLogin()
+        # self.attributes('-fullscreen', True)
+        # self.configurar_VentanaLogin()
         self.frame_login = Frame(self)
         self.frame_login.pack()
 
-        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Ingresar', bootstyle="info")
+        self.lblframe_login = ttk.LabelFrame(self.frame_login, text='Iniciar Sesión', bootstyle="info")
         self.lblframe_login.pack(padx=10, pady=10)
 
-        logo_image = PhotoImage(file='Logo.png')
+        ruta = Path(__file__).parent  # Buenas Practicas
+        archivo = ruta / "Logo.png"
+        logo_image = PhotoImage(file=archivo)
 
         # Mostrar el logo en lugar del texto
         lbllogo = ttk.Label(self.lblframe_login, image=logo_image)
         lbllogo.image = logo_image  # Mantener una referencia para evitar que el recolector de basura lo elimine
         lbllogo.pack(padx=10, pady=35)
-        #lbltitulo = ttk.Label(self.lblframe_login, text='Inicar Sesion',bootstyle="light", font=('Arial', 18))
-        #lbltitulo.pack(padx=10, pady=35)
+        # lbltitulo = ttk.Label(self.lblframe_login, text='Inicar Sesion',bootstyle="light", font=('Arial', 18))
+        # lbltitulo.pack(padx=10, pady=35)
 
-        self.txtUsuario = ttk.Entry(self.lblframe_login, width=40,bootstyle='secondary', justify=CENTER)
+        self.txtUsuario = ttk.Entry(self.lblframe_login, width=40, bootstyle='secondary', justify=CENTER)
         self.txtUsuario.pack(padx=10, pady=10)
         self.set_placeholder(self.txtUsuario, "Usuario")
 
-        self.txtClave = ttk.Entry(self.lblframe_login, width=40,bootstyle='secondary', justify=CENTER)
+        self.txtClave = ttk.Entry(self.lblframe_login, width=40, bootstyle='secondary', justify=CENTER)
         self.txtClave.pack(padx=10, pady=10)
         self.txtClave.configure(show='*')
         self.set_placeholder(self.txtClave, "Contraseña")
 
-        btnAcceso = ttk.Button(self.lblframe_login, text='Log in',bootstyle="info", command=self.logueo)
+        btnAcceso = ttk.Button(self.lblframe_login, text='Ingresar', bootstyle="info", command=self.logueo)
         btnAcceso.pack(padx=10, pady=10)
 
     def set_placeholder(self, entry_widget, placeholder):
         entry_widget.insert(0, placeholder)
         entry_widget.bind("<FocusIn>", lambda event: self.on_entry_click(entry_widget, placeholder))
         entry_widget.bind("<FocusOut>", lambda event: self.on_focus_out(entry_widget, placeholder))
+
     def on_entry_click(self, entry_widget, placeholder):
         if entry_widget.get() == placeholder:
             entry_widget.delete(0, END)
+
     def on_focus_out(self, entry_widget, placeholder):
         if entry_widget.get() == "":
             entry_widget.insert(0, placeholder)
+
     def ventanaMenu(self):
         tb.Style('darkly')
         self.configurar_VentanaMenu()
-        self.frameLeft=Frame(self,width=200)
-        self.frameLeft.grid(row=0,column=0,sticky=NSEW)
-        self.frameCenter=Frame(self)
-        self.frameCenter.grid(row=0,column=1,sticky=NSEW)
+        self.frameLeft = Frame(self, width=200)
+        self.frameLeft.grid(row=0, column=0, sticky=NSEW)
+        self.frameCenter = Frame(self)
+        self.frameCenter.grid(row=0, column=1, sticky=NSEW)
 
         bienvenida_label = ttk.Label(self.frameLeft, text=f'¡Bienvenido, {self.txtUsuario.get()}!',
                                      font=('Arial', 12, 'bold'))
         bienvenida_label.grid(row=0, column=0, padx=10, pady=10, sticky=N)
 
-        btnProductos=ttk.Button(self.frameLeft, text='Productos', width=15,
-                                command=lambda: [self.ventanaListaProductos(),
-                                                 self.configurar_VentanaListaProductos()])
-        btnProductos.grid(row=1, column=0,padx=10,pady=10)
+        btnProductos = ttk.Button(self.frameLeft, text='Productos', width=15,
+                                  command=lambda: [self.ventanaListaProductos(),
+                                                   self.configurar_VentanaListaProductos()])
+        btnProductos.grid(row=1, column=0, padx=10, pady=10)
 
-        btnClientes=ttk.Button(self.frameLeft, text='Proveedores',width=15,
-                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),
-                                                self.configurar_VentanaListaProvedor()])
-        btnClientes.grid(row=2,column=0,padx=10,pady=10)
+        btnClientes = ttk.Button(self.frameLeft, text='Proveedores', width=15,
+                                 command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),
+                                                  self.configurar_VentanaListaProvedor()])
+        btnClientes.grid(row=2, column=0, padx=10, pady=10)
 
-        btnUsuarios=ttk.Button(self.frameLeft, text='Usuarios',width=15,
-                               command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),
-                                                self.configurar_VentanaListaUsuarios()])
-        btnUsuarios.grid(row=3,column=0,padx=10,pady=10)
+        btnUsuarios = ttk.Button(self.frameLeft, text='Usuarios', width=15,
+                                 command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),
+                                                  self.configurar_VentanaListaUsuarios()])
+        btnUsuarios.grid(row=3, column=0, padx=10, pady=10)
 
-        btnReportes=ttk.Button(self.frameLeft, text='Reportes',width=15,
-                               command=lambda :[self.mostrarHistorial(),
-                                                self.configurar_VentanaListaHistorial()])
-        btnReportes.grid(row=4,column=0,padx=10,pady=10)
+        btnReportes = ttk.Button(self.frameLeft, text='Reportes', width=15,
+                                 command=lambda: [self.mostrarHistorial(),
+                                                  self.configurar_VentanaListaHistorial()])
+        btnReportes.grid(row=4, column=0, padx=10, pady=10)
 
-        btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15, command=self.ventana_Imprimir_Resgistro)
+        btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15,
+                                   command=self.ventana_Imprimir_Resgistro)
         btnExportarDB.grid(row=5, column=0, padx=10, pady=10)
 
-        btnRestaurar_DB=ttk.Button(self.frameLeft, text='Restaurar Tabla',width=15,command=self.subventanborrarTabla)
-        btnRestaurar_DB.grid(row=6,column=0,padx=10,pady=10)
+        btnRestaurar_DB = ttk.Button(self.frameLeft, text='Restaurar Tabla', width=15,
+                                     command=self.subventanborrarTabla)
+        btnRestaurar_DB.grid(row=6, column=0, padx=10, pady=10)
 
-        btnSalirDelPrograma = ttk.Button(self.frameLeft, text='Salir', width=15,bootstyle='danger',
-                                     command=self.BtnSalir)
+        btnSalirDelPrograma = ttk.Button(self.frameLeft, text='Salir', width=15, bootstyle='danger',
+                                         command=self.BtnSalir)
         btnSalirDelPrograma.grid(row=7, column=0, padx=10, pady=10)
 
     def BtnSalir(self):
         self.destroy()
-
 
     def logueo(self):
 
@@ -126,72 +134,73 @@ class Ventana(tb.Window):
                     rolUsuario = row[3]
 
                 if nomUsuario == self.txtUsuario.get() and claUsuario == self.txtClave.get():
-
                     self.rol_usuario_actual = rolUsuario
 
                     self.frame_login.pack_forget()
 
                     self.ventanaMenu()
             else:
-                messagebox.showerror("INICIO SECION","DATOS INCORRECTOS")
+                messagebox.showerror("INICIO SECION", "DATOS INCORRECTOS")
 
         except sqlite3.Error as e:
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
+
     def configurar_VentanaMenu(self):
         global app
         app.geometry("170x400+900+300")
         return app
-    #---------------USUARIOS------------
-    def ventanaListaUsuarios(self, mostrar_proveedores= False):
-        self.frameListaUsuarios=Frame(self.frameCenter)
-        self.frameListaUsuarios.grid(row=0,column=0,columnspan=2,sticky=NSEW)
 
-        self.lblframeBotonesListUsu=LabelFrame(self.frameListaUsuarios)
-        self.lblframeBotonesListUsu.grid(row=0,column=0,sticky=NSEW)
+    # ---------------USUARIOS------------
+    def ventanaListaUsuarios(self, mostrar_proveedores=False):
+        self.frameListaUsuarios = Frame(self.frameCenter)
+        self.frameListaUsuarios.grid(row=0, column=0, columnspan=2, sticky=NSEW)
 
-        self.lblframeBusqListUsu=LabelFrame(self.frameListaUsuarios)
-        self.lblframeBusqListUsu.grid(row=1,column=0,padx=10,pady=10,sticky=NSEW)
+        self.lblframeBotonesListUsu = LabelFrame(self.frameListaUsuarios)
+        self.lblframeBotonesListUsu.grid(row=0, column=0, sticky=NSEW)
 
-        self.txtBusquedaUsuarios=ttk.Entry(self.lblframeBusqListUsu,width=100)
-        self.txtBusquedaUsuarios.grid(row=0,column=0,padx=5,pady=5)
+        self.lblframeBusqListUsu = LabelFrame(self.frameListaUsuarios)
+        self.lblframeBusqListUsu.grid(row=1, column=0, padx=10, pady=10, sticky=NSEW)
+
+        self.txtBusquedaUsuarios = ttk.Entry(self.lblframeBusqListUsu, width=100)
+        self.txtBusquedaUsuarios.grid(row=0, column=0, padx=5, pady=5)
         if mostrar_proveedores:
             self.txtBusquedaUsuarios.bind('<Key>', self.buscarProveedores)
 
         else:
             self.txtBusquedaUsuarios.bind('<Key>', self.buscarUsuarios)
 
-        #====================TreeView===============
-        self.lblframeTreeListUsu=LabelFrame(self.frameListaUsuarios)
-        self.lblframeTreeListUsu.grid(row=2,column=0,padx=10,pady=10,sticky=NSEW)
+        # ====================TreeView===============
+        self.lblframeTreeListUsu = LabelFrame(self.frameListaUsuarios)
+        self.lblframeTreeListUsu.grid(row=2, column=0, padx=10, pady=10, sticky=NSEW)
 
-        columnas=("codigo", "nombre", "clave", "rol")
+        columnas = ("codigo", "nombre", "clave", "rol")
 
-        self.TreelistUsuarios=tb.Treeview(self.lblframeTreeListUsu,
-                                          columns=columnas,height=17,
-                                          show='headings',bootstyle='info')
-        self.TreelistUsuarios.grid(row=0,column=0)
+        self.TreelistUsuarios = tb.Treeview(self.lblframeTreeListUsu,
+                                            columns=columnas, height=17,
+                                            show='headings', bootstyle='info')
+        self.TreelistUsuarios.grid(row=0, column=0)
 
-        self.TreelistUsuarios.heading("codigo",text="Codigo",anchor=W)
-        self.TreelistUsuarios.heading("nombre",text="Nombre",anchor=W)
-        self.TreelistUsuarios.heading("clave",text="Clave",anchor=W)
-        self.TreelistUsuarios.heading("rol",text="Rol",anchor=W)
+        self.TreelistUsuarios.heading("codigo", text="CODIGO", anchor=W)
+        self.TreelistUsuarios.heading("nombre", text="NOMBRE", anchor=W)
+        self.TreelistUsuarios.heading("clave", text="CLAVE", anchor=W)
+        self.TreelistUsuarios.heading("rol", text="ROL", anchor=W)
 
-
-        self.TreelistUsuarios['displaycolumns']=['codigo','nombre','rol']
+        self.TreelistUsuarios['displaycolumns'] = ['codigo', 'nombre', 'rol']
         if mostrar_proveedores:
             self.TreelistUsuarios.bind("<<TreeviewSelect>>", self.activar_boton_historial_proveedor)
         else:
-            self.TreelistUsuarios.bind("<<TreeviewSelect>>",self.activar_boton_Modificar_Eliminar)
+            self.TreelistUsuarios.bind("<<TreeviewSelect>>", self.activar_boton_Modificar_Eliminar)
 
-            TreeScrollListUsu=tb.Scrollbar(self.frameListaUsuarios,bootstyle='round-success')
-            TreeScrollListUsu.grid(row=2,column=1)
-            #Configu el scroll
+            TreeScrollListUsu = tb.Scrollbar(self.frameListaUsuarios, bootstyle='round-success')
+            TreeScrollListUsu.grid(row=2, column=1)
+            # Configu el scroll
             TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
 
         if mostrar_proveedores:
 
             self.btnNuevoUsuario = tb.Button(self.lblframeBotonesListUsu, text='Lista Productos', width=15,
-                                        bootstyle="success", state="disabled",command=self.ventanaListaProductosProvedor)
+                                             bootstyle="success", state="disabled",
+                                             command=self.ventanaListaProductosProvedor)
             self.btnNuevoUsuario.grid(row=0, column=0, padx=5, pady=5)
             self.mostrar_proveedores()
 
@@ -202,110 +211,118 @@ class Ventana(tb.Window):
             btnNuevoUsuario.grid(row=0, column=0, padx=5, pady=5)
 
             self.btnModificarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Modificar', width=15,
-                                            bootstyle="warning",state="disabled", command=self.ventanaModificarUsuario)
+                                                 bootstyle="warning", state="disabled",
+                                                 command=self.ventanaModificarUsuario)
             self.btnModificarUsuario.grid(row=0, column=1, padx=5, pady=5)
 
-            self.btnEliminarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Eliminar', width=15, bootstyle="danger",
-                                           state="disabled",command=self.borrarUsuario)
+            self.btnEliminarUsuario = tb.Button(self.lblframeBotonesListUsu, text='Eliminar',
+                                                width=15,
+                                                bootstyle="danger",
+                                                state="disabled", command=self.borrarUsuario)
             self.btnEliminarUsuario.grid(row=0, column=2, padx=5, pady=5)
 
             self.MostrarUsuarios()
-    def activar_boton_Modificar_Eliminar(self,event):
+
+    def activar_boton_Modificar_Eliminar(self, event):
         item_seleccionado = self.TreelistUsuarios.focus()
         if item_seleccionado:
             self.btnModificarUsuario.config(state="normal")
             self.btnEliminarUsuario.config(state="normal")
-    def activar_boton_historial_proveedor(self,event):
+
+    def activar_boton_historial_proveedor(self, event):
         item_seleccionado = self.TreelistUsuarios.focus()
         if item_seleccionado:
             self.btnNuevoUsuario.config(state="normal")
         else:
             self.btnNuevoUsuario.config(state="disabled")
+
     def configurar_VentanaListaUsuarios(self):
         global app
         app.geometry("830x450+500+300")
         print("estoy cambiando")
         return app
+
     def MostrarUsuarios(self):
 
         try:
 
             db = Crud_Usuarios()
 
-            datos=db.Mostrar_Usuarios()
+            datos = db.Mostrar_Usuarios()
 
-            registros=self.TreelistUsuarios.get_children()
+            registros = self.TreelistUsuarios.get_children()
 
             for elementos in registros:
                 self.TreelistUsuarios.delete(elementos)
 
             for row in datos:
-
-                self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
+                self.TreelistUsuarios.insert("", 0, text=row[0], values=(row[0], row[1], row[2], row[3]))
 
         except sqlite3.Error as e:
 
             print("Error de SQLite:", e)
             messagebox.showerror("Lista de Usuario",
                                  f"Ocurrió un error al mostrar la lista de usuario: {e}")
+
     def ventanaNuevoUsuario(self):
 
         if not self.es_administrador_actual():
             messagebox.showwarning('Modificar Usuario', 'No tienes permisos para modificar usuarios')
             return
 
-        self.frameNewUser=Toplevel(self)
+        self.frameNewUser = Toplevel(self)
         self.frameNewUser.title('Nuevo Usuario')
         self.frameNewUser.geometry("400x300+800+350")
-        self.frameNewUser.resizable(False,False)
+        self.frameNewUser.resizable(False, False)
         self.frameNewUser.grab_set()
 
-        lblframeNewUser=LabelFrame(self.frameNewUser)
-        lblframeNewUser.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
+        lblframeNewUser = LabelFrame(self.frameNewUser)
+        lblframeNewUser.grid(row=0, column=0, sticky=NSEW, padx=25, pady=35)
 
-        lblCodeModifyUser=Label(lblframeNewUser,text='Codigo')
-        lblCodeModifyUser.grid(row=0,column=0,padx=10,pady=10,sticky=E)
-        self.txtCodeNewUser=ttk.Entry(lblframeNewUser,width=40)
-        self.txtCodeNewUser.grid(row=0,column=1,padx=10,pady=10)
+        lblCodeModifyUser = Label(lblframeNewUser, text='Codigo')
+        lblCodeModifyUser.grid(row=0, column=0, padx=10, pady=10, sticky=E)
+        self.txtCodeNewUser = ttk.Entry(lblframeNewUser, width=40)
+        self.txtCodeNewUser.grid(row=0, column=1, padx=10, pady=10)
 
-        lblNameNewUser=Label(lblframeNewUser,text='Nombre')
-        lblNameNewUser.grid(row=1,column=0,padx=10,pady=10,sticky=E)
-        self.txtNameNewUser=ttk.Entry(lblframeNewUser,width=40)
-        self.txtNameNewUser.grid(row=1,column=1,padx=10,pady=10)
+        lblNameNewUser = Label(lblframeNewUser, text='Nombre')
+        lblNameNewUser.grid(row=1, column=0, padx=10, pady=10, sticky=E)
+        self.txtNameNewUser = ttk.Entry(lblframeNewUser, width=40)
+        self.txtNameNewUser.grid(row=1, column=1, padx=10, pady=10)
 
-        lblClaveNewUser=Label(lblframeNewUser,text='Clave')
-        lblClaveNewUser.grid(row=2,column=0,padx=10,pady=10,sticky=E)
-        self.txtClaveNewUser=ttk.Entry(lblframeNewUser,width=40)
-        self.txtClaveNewUser.grid(row=2,column=1,padx=10,pady=10)
+        lblClaveNewUser = Label(lblframeNewUser, text='Clave')
+        lblClaveNewUser.grid(row=2, column=0, padx=10, pady=10, sticky=E)
+        self.txtClaveNewUser = ttk.Entry(lblframeNewUser, width=40)
+        self.txtClaveNewUser.grid(row=2, column=1, padx=10, pady=10)
 
-        lblRolNewUser=Label(lblframeNewUser,text='Rol')
-        lblRolNewUser.grid(row=3,column=0,padx=10,pady=10,sticky=E)
-        self.txtRolNewUser=ttk.Combobox(lblframeNewUser,values=('Administrador','Proveedor','Vendedor'),
-                                        width=38,state='readonly')
-        self.txtRolNewUser.grid(row=3,column=1,padx=10,pady=10)
+        lblRolNewUser = Label(lblframeNewUser, text='Rol')
+        lblRolNewUser.grid(row=3, column=0, padx=10, pady=10, sticky=E)
+        self.txtRolNewUser = ttk.Combobox(lblframeNewUser, values=('Administrador', 'Proveedor', 'Vendedor'),
+                                          width=38, state='readonly')
+        self.txtRolNewUser.grid(row=3, column=1, padx=10, pady=10)
         self.txtRolNewUser.current(0)
 
-        btnSaveNewUser=ttk.Button(lblframeNewUser,text='Guardar',width=38,command=self.guardarUsuario)
-        btnSaveNewUser.grid(row=4,column=1,padx=10,pady=10)
-        
+        btnSaveNewUser = ttk.Button(lblframeNewUser, text='Guardar', width=38, command=self.guardarUsuario)
+        btnSaveNewUser.grid(row=4, column=1, padx=10, pady=10)
+
         self.registrar_en_historial("Usuario ha sido creado por: ", self.txtUsuario.get())
 
         self.ultimoUsuario()
 
         self.txtNameNewUser.focus()
+
     def guardarUsuario(self):
 
-        if self.txtCodeNewUser.get()=="" or self.txtNameNewUser.get()=="" or self.txtClaveNewUser.get()=="":
+        if self.txtCodeNewUser.get() == "" or self.txtNameNewUser.get() == "" or self.txtClaveNewUser.get() == "":
             messagebox.showwarning('Guardando usuarios', 'Algún campo no es válido, por favor revisar')
             return
         try:
 
             db = Crud_Usuarios()
 
-            datosGuardarUsuarios=(self.txtCodeNewUser.get(),
-                                  self.txtNameNewUser.get(),
-                                  self.txtClaveNewUser.get(),
-                                  self.txtRolNewUser.get())
+            datosGuardarUsuarios = (self.txtCodeNewUser.get(),
+                                    self.txtNameNewUser.get(),
+                                    self.txtClaveNewUser.get(),
+                                    self.txtRolNewUser.get())
 
             db.Guardar_Usuario(datosGuardarUsuarios)
 
@@ -313,41 +330,43 @@ class Ventana(tb.Window):
 
             self.frameNewUser.destroy()
             self.ventanaListaUsuarios()
-            #Cerrar la conexi
+            # Cerrar la conexi
 
         except:
-            messagebox.showerror("Guardando Usuarios","Ocurrió un error al Guardar Usuario")
+            messagebox.showerror("Guardando Usuarios", "Ocurrió un error al Guardar Usuario")
+
     def ultimoUsuario(self):
         try:
             db = Crud_Usuarios()
             datos = db.Ultimo_Usuario()
             for codusu in datos:
                 codusu = codusu[0]
-                if codusu==None:
-                    self.ultusu=(int(1))
+                if codusu == None:
+                    self.ultusu = (int(1))
                     self.txtCodeNewUser.config(state=NORMAL)
-                    self.txtCodeNewUser.insert(0,self.ultusu)
+                    self.txtCodeNewUser.insert(0, self.ultusu)
                     self.txtCodeNewUser.config(state='readonly')
                     break
 
-                if codusu=="":
-                    self.ultusu=(int(1))
+                if codusu == "":
+                    self.ultusu = (int(1))
                     self.txtCodeNewUser.config(state=NORMAL)
-                    self.txtCodeNewUser.insert(0,self.ultusu)
+                    self.txtCodeNewUser.insert(0, self.ultusu)
                     self.txtCodeNewUser.config(state='readonly')
                     break
 
                 else:
-                    self.ultusu=(int(codusu)+1)
+                    self.ultusu = (int(codusu) + 1)
                     self.txtCodeNewUser.config(state=NORMAL)
-                    self.txtCodeNewUser.insert(0,self.ultusu)
+                    self.txtCodeNewUser.insert(0, self.ultusu)
                     self.txtCodeNewUser.config(state='readonly')
         except ValueError as e:
             print("error {}".format(e))
-    def buscarUsuarios(self,event):
+
+    def buscarUsuarios(self, event):
         try:
             db = Crud_Usuarios()
-            registros=self.TreelistUsuarios.get_children()
+            registros = self.TreelistUsuarios.get_children()
             for elementos in registros:
                 self.TreelistUsuarios.delete(elementos)
             busqueda = self.txtBusquedaUsuarios.get()
@@ -359,94 +378,97 @@ class Ventana(tb.Window):
                 datos = db.Buscar_Usuario(busqueda)
 
             for row in datos:
-
-                self.TreelistUsuarios.insert("",0,text=row[0],values=(row[0],row[1],row[2],row[3]))
+                self.TreelistUsuarios.insert("", 0, text=row[0], values=(row[0], row[1], row[2], row[3]))
         except:
 
-            print("Busqueda de usuarios","Ocurrió un error al buscar en la lista de usuarios")
+            print("Busqueda de usuarios", "Ocurrió un error al buscar en la lista de usuarios")
+
     def ventanaModificarUsuario(self):
 
         if not self.es_administrador_actual():
             messagebox.showwarning('Modificar Usuario', 'No tienes permisos para modificar usuarios')
             return
 
-        self.usuarioSeleccionado=self.TreelistUsuarios.focus()
-        self.ValModUsu=self.TreelistUsuarios.item(self.usuarioSeleccionado,'values')
+        self.usuarioSeleccionado = self.TreelistUsuarios.focus()
+        self.ValModUsu = self.TreelistUsuarios.item(self.usuarioSeleccionado, 'values')
 
-        if self.ValModUsu!='':
-            self.frameModifyUser=Toplevel(self)
+        if self.ValModUsu != '':
+            self.frameModifyUser = Toplevel(self)
             self.frameModifyUser.title('Nuevo Usuario')
             self.frameModifyUser.geometry('400x300+800+350')
 
-            self.frameModifyUser.resizable(False,False)
+            self.frameModifyUser.resizable(False, False)
             self.frameModifyUser.grab_set()
 
-            lblModifyUser=LabelFrame(self.frameModifyUser)
-            lblModifyUser.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
+            lblModifyUser = LabelFrame(self.frameModifyUser)
+            lblModifyUser.grid(row=0, column=0, sticky=NSEW, padx=25, pady=35)
 
-            lblCodeModifyUser=Label(lblModifyUser,text='Codigo')
-            lblCodeModifyUser.grid(row=0,column=0,padx=10,pady=10,sticky=E)
-            self.txtCodeModifyUser=ttk.Entry(lblModifyUser,width=40)
-            self.txtCodeModifyUser.grid(row=0,column=1,padx=10,pady=10)
+            lblCodeModifyUser = Label(lblModifyUser, text='Codigo')
+            lblCodeModifyUser.grid(row=0, column=0, padx=10, pady=10, sticky=E)
+            self.txtCodeModifyUser = ttk.Entry(lblModifyUser, width=40)
+            self.txtCodeModifyUser.grid(row=0, column=1, padx=10, pady=10)
 
-            lblModifyNewUser=Label(lblModifyUser,text='Nombre')
-            lblModifyNewUser.grid(row=1,column=0,padx=10,pady=10,sticky=E)
-            self.txtNameModifyUser=ttk.Entry(lblModifyUser,width=40)
-            self.txtNameModifyUser.grid(row=1,column=1,padx=10,pady=10)
+            lblModifyNewUser = Label(lblModifyUser, text='Nombre')
+            lblModifyNewUser.grid(row=1, column=0, padx=10, pady=10, sticky=E)
+            self.txtNameModifyUser = ttk.Entry(lblModifyUser, width=40)
+            self.txtNameModifyUser.grid(row=1, column=1, padx=10, pady=10)
 
-            lblClaveModifyUser=Label(lblModifyUser,text='Clave')
-            lblClaveModifyUser.grid(row=2,column=0,padx=10,pady=10,sticky=E)
-            self.txtClaveModifyUser=ttk.Entry(lblModifyUser,width=40)
-            self.txtClaveModifyUser.grid(row=2,column=1,padx=10,pady=10)
+            lblClaveModifyUser = Label(lblModifyUser, text='Clave')
+            lblClaveModifyUser.grid(row=2, column=0, padx=10, pady=10, sticky=E)
+            self.txtClaveModifyUser = ttk.Entry(lblModifyUser, width=40)
+            self.txtClaveModifyUser.grid(row=2, column=1, padx=10, pady=10)
 
-            lblRolModifyUser=Label(lblModifyUser,text='Rol')
-            lblRolModifyUser.grid(row=3,column=0,padx=10,pady=10,sticky=E)
-            self.txtRolModifyUser=ttk.Combobox(lblModifyUser,values=('Administrador','Proveedor','Vendedor'),width=38)
-            self.txtRolModifyUser.grid(row=3,column=1,padx=10,pady=10)
+            lblRolModifyUser = Label(lblModifyUser, text='Rol')
+            lblRolModifyUser.grid(row=3, column=0, padx=10, pady=10, sticky=E)
+            self.txtRolModifyUser = ttk.Combobox(lblModifyUser, values=('Administrador', 'Proveedor', 'Vendedor'),
+                                                 width=38)
+            self.txtRolModifyUser.grid(row=3, column=1, padx=10, pady=10)
 
-
-            btnSaveModifyUser=ttk.Button(lblModifyUser,text='Modificar',width=38,bootstyle='warning', command=self.modificarUsuario)
-            btnSaveModifyUser.grid(row=4,column=1,padx=10,pady=10)
+            btnSaveModifyUser = ttk.Button(lblModifyUser, text='Modificar', width=38, bootstyle='warning',
+                                           command=self.modificarUsuario)
+            btnSaveModifyUser.grid(row=4, column=1, padx=10, pady=10)
             self.llenarEntrysPaModificarUser()
 
             self.txtNameModifyUser.focus()
+
     def llenarEntrysPaModificarUser(self):
 
-        self.txtCodeModifyUser.delete(0,END)
-        self.txtNameModifyUser.delete(0,END)
-        self.txtClaveModifyUser.delete(0,END)
-        self.txtRolModifyUser.delete(0,END)
+        self.txtCodeModifyUser.delete(0, END)
+        self.txtNameModifyUser.delete(0, END)
+        self.txtClaveModifyUser.delete(0, END)
+        self.txtRolModifyUser.delete(0, END)
 
-        self.txtCodeModifyUser.insert(0,self.ValModUsu[0])
+        self.txtCodeModifyUser.insert(0, self.ValModUsu[0])
         self.txtCodeModifyUser.config(state='readonly')
-        self.txtNameModifyUser.insert(0,self.ValModUsu[1])
-        self.txtClaveModifyUser.insert(0,self.ValModUsu[2])
-        self.txtRolModifyUser.insert(0,self.ValModUsu[3])
+        self.txtNameModifyUser.insert(0, self.ValModUsu[1])
+        self.txtClaveModifyUser.insert(0, self.ValModUsu[2])
+        self.txtRolModifyUser.insert(0, self.ValModUsu[3])
         self.txtRolModifyUser.config(state='readonly')
+
     def modificarUsuario(self):
 
-        if self.txtCodeModifyUser.get()=="" or self.txtNameModifyUser.get()=="" or self.txtClaveModifyUser.get()=="":
+        if self.txtCodeModifyUser.get() == "" or self.txtNameModifyUser.get() == "" or self.txtClaveModifyUser.get() == "":
             messagebox.showwarning('Modificando usuarios', 'Algún campo no es válido, por favor revisar')
             return
 
         try:
 
-            miConexion=sqlite3.connect('whatislove.db')
-            #Crear cursor
-            miCursor=miConexion.cursor()
+            miConexion = sqlite3.connect('whatislove.db')
+            # Crear cursor
+            miCursor = miConexion.cursor()
 
-            datosModificarUsuarios=(self.txtNameModifyUser.get(),
-                                    self.txtClaveModifyUser.get(),
-                                    self.txtRolModifyUser.get())
-            miCursor.execute("UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo="+self.txtCodeModifyUser.get(),
+            datosModificarUsuarios = (self.txtNameModifyUser.get(),
+                                      self.txtClaveModifyUser.get(),
+                                      self.txtRolModifyUser.get())
+            miCursor.execute("UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo=" + self.txtCodeModifyUser.get(),
                              (datosModificarUsuarios))
 
             messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
 
             miConexion.commit()
 
-            self.ValModUsu=self.TreelistUsuarios.item(
-                self.usuarioSeleccionado,text='',
+            self.ValModUsu = self.TreelistUsuarios.item(
+                self.usuarioSeleccionado, text='',
                 values=(self.txtCodeModifyUser.get(),
                         self.txtNameModifyUser.get(),
                         self.txtClaveModifyUser.get(),
@@ -459,7 +481,8 @@ class Ventana(tb.Window):
             miConexion.close()
 
         except:
-            messagebox.showerror("Modificar Usuarios","Ocurrió un error al Modificar Usuario")
+            messagebox.showerror("Modificar Usuarios", "Ocurrió un error al Modificar Usuario")
+
     def borrarUsuario(self):
         # Validar si se ha seleccionado un usuario para borrar
         usuario_seleccionado = self.TreelistUsuarios.focus()
@@ -484,7 +507,10 @@ class Ventana(tb.Window):
             return
 
         # Pedir confirmación de contraseña
-        contraseña_confirmacion = simpledialog.askstring('Confirmar Eliminación', f'Ingrese la contraseña para confirmar la eliminación del usuario {nombre_usuario}:', show='*')
+        contraseña_confirmacion = simpledialog.askstring(
+            'Confirmar Eliminación',
+            f'Ingrese la contraseña para confirmar la eliminación del usuario {nombre_usuario}:', show='*'
+        )
 
         if not contraseña_confirmacion:
             return  # El usuario cerró la ventana de confirmación o no ingresó contraseña
@@ -494,11 +520,11 @@ class Ventana(tb.Window):
             db = Crud_Usuarios()
 
             # Consultar DB y verificar la contraseña
-            resultado = db.Verifica_Usuario(codigo_usuario,)
+            resultado = db.Verifica_Usuario(codigo_usuario, )
 
             if resultado and resultado[0] == contraseña_confirmacion:
                 # Eliminar el usuario
-                db.Borrar_Usuario(codigo_usuario,)
+                db.Borrar_Usuario(codigo_usuario, )
                 # Aplicar Cambios
                 messagebox.showinfo('Borrar Usuario', "Usuario Borrado Correctamente")
                 # Cerrar la conexion
@@ -510,6 +536,7 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             messagebox.showerror("Borrar Usuario", "Ocurrió un error al borrar el usuario: {}".format(e))
+
     def es_administrador_actual(self):
         # Verificar si el rol almacenado es "Administrador"
         return self.rol_usuario_actual == 'Administrador'
@@ -520,7 +547,6 @@ class Ventana(tb.Window):
         self.frameListaProductos = Toplevel(self)
         self.frameListaProductos.title('Lista de Productos')
         self.frameListaProductos.resizable(False, False)
-
 
         self.frameListaProductos.geometry("1250x340+325+325")
 
@@ -533,27 +559,29 @@ class Ventana(tb.Window):
 
         columnas = ("ID Producto", "Nombre_proveedor", "Nombre del Producto", "Precio", "Stock", "Descripción")
         self.TreelistProductosPro = tb.Treeview(self.lblframeTreeListProd, columns=columnas, height=17, show='headings',
-                                            bootstyle='info')
+                                                bootstyle='info')
         self.TreelistProductosPro.grid(row=0, column=0)
-        self.TreelistProductosPro.heading("ID Producto", text="ID Producto", anchor=W)
-        self.TreelistProductosPro.heading("Nombre_proveedor", text="Nombre_proveedor", anchor=W)
-        self.TreelistProductosPro.heading("Nombre del Producto", text="Nombre del Producto", anchor=W)
-        self.TreelistProductosPro.heading("Precio", text="Precio", anchor=W)
-        self.TreelistProductosPro.heading("Stock", text="Stock", anchor=W)
-        self.TreelistProductosPro.heading("Descripción", text="Descripción", anchor=W)
+        self.TreelistProductosPro.heading("ID Producto", text="ID PRODUCTO", anchor=W)
+        self.TreelistProductosPro.heading("Nombre_proveedor", text="NOMBRE PROVEEDOR", anchor=W)
+        self.TreelistProductosPro.heading("Nombre del Producto", text="NOMBRE PRODUCTO", anchor=W)
+        self.TreelistProductosPro.heading("Precio", text="PRECIO", anchor=W)
+        self.TreelistProductosPro.heading("Stock", text="STOCK", anchor=W)
+        self.TreelistProductosPro.heading("Descripción", text="DESCRIPCIÓN", anchor=W)
 
         self.TreelistProductosPro['displaycolumns'] = ['ID Producto', 'Nombre_proveedor', 'Nombre del Producto',
-                                                    'Precio', 'Stock', 'Descripción']
+                                                       'Precio', 'Stock', 'Descripción']
         # Creando el scrollbar
         TreeScrollListProd = tb.Scrollbar(self.frameListaProductos, bootstyle='round-success')
         TreeScrollListProd.grid(row=2, column=1)
         TreeScrollListProd.config(command=self.TreelistProductosPro.yview)
         self.MostrarProductosProveedor()
+
     def configurar_VentanaListaProvedor(self):
         global app
         app.geometry("830x450+500+300")
         print("estoy cambiando")
         return app
+
     def mostrar_proveedores(self):
         crud = Consulta_Proveedor()
         datos = crud.mostrar_proveedores()
@@ -563,6 +591,7 @@ class Ventana(tb.Window):
 
         for row in datos:
             self.TreelistUsuarios.insert("", 0, text=row[0], values=(row[0], row[1], row[2], row[3]))
+
     def MostrarProductosProveedor(self):
         proveedor_seleccionado = self.TreelistUsuarios.focus()
         proveedor_codigo = self.TreelistUsuarios.item(proveedor_seleccionado, 'text')
@@ -574,6 +603,7 @@ class Ventana(tb.Window):
         for producto in productos:
             values = (producto[1], producto[0], producto[3], producto[4], producto[5], producto[6])
             self.TreelistProductosPro.insert('', 'end', values=values)
+
     def buscarProveedores(self, event):
         registros = self.TreelistUsuarios.get_children()
         for elementos in registros:
@@ -586,64 +616,69 @@ class Ventana(tb.Window):
             self.TreelistUsuarios.insert("", 0, text=proveedor[0],
                                          values=(proveedor[0], proveedor[1], proveedor[2], proveedor[3]))
 
-    #----------Productos-----------
+    # ----------Productos-----------
     def ventanaListaProductos(self):
 
-        self.frameListaProducto=Frame(self.frameCenter)
-        self.frameListaProducto.grid(row=0,column=0,columnspan=2,sticky=NSEW)
+        self.frameListaProducto = Frame(self.frameCenter)
+        self.frameListaProducto.grid(row=0, column=0, columnspan=2, sticky=NSEW)
 
-        self.lblframeBotonesListProduc=LabelFrame(self.frameListaProducto)
-        self.lblframeBotonesListProduc.grid(row=0,column=0,sticky=NSEW)
+        self.lblframeBotonesListProduc = LabelFrame(self.frameListaProducto)
+        self.lblframeBotonesListProduc.grid(row=0, column=0, sticky=NSEW)
 
-        btnNuevoProduct=tb.Button(self.lblframeBotonesListProduc,text='Nuevo', width=15,bootstyle="success",
-                                  command=self.ventanaNuevoProducto)
-        btnNuevoProduct.grid(row=0,column=0,padx=5,pady=5)
+        btnNuevoProduct = tb.Button(self.lblframeBotonesListProduc, text='Nuevo', width=15, bootstyle="success",
+                                    command=self.ventanaNuevoProducto)
+        btnNuevoProduct.grid(row=0, column=0, padx=5, pady=5)
 
-        self.btnModificarProduc=tb.Button(self.lblframeBotonesListProduc,text='Modificar', width=15,bootstyle="warning",
-                                     state="disabled",command=self.ventanaModificarProductos)
-        self.btnModificarProduc.grid(row=0,column=1,padx=5,pady=5)
+        self.btnModificarProduc = tb.Button(self.lblframeBotonesListProduc, text='Modificar', width=15,
+                                            bootstyle="warning",
+                                            state="disabled", command=self.ventanaModificarProductos)
+        self.btnModificarProduc.grid(row=0, column=1, padx=5, pady=5)
 
-        self.btnEliminarProduc=tb.Button(self.lblframeBotonesListProduc,text='Eliminar', width=15,bootstyle="danger",
-                                    state="disabled",command=self.borrarProducto)
-        self.btnEliminarProduc.grid(row=0,column=2,padx=5,pady=5)
+        self.btnEliminarProduc = tb.Button(self.lblframeBotonesListProduc, text='Eliminar', width=15,
+                                           bootstyle="danger",
+                                           state="disabled", command=self.borrarProducto)
+        self.btnEliminarProduc.grid(row=0, column=2, padx=5, pady=5)
 
-        self.lblframeBusqListProduct=LabelFrame(self.frameListaProducto)
-        self.lblframeBusqListProduct.grid(row=1,column=0,padx=10,pady=10,sticky=NSEW)
+        self.lblframeBusqListProduct = LabelFrame(self.frameListaProducto)
+        self.lblframeBusqListProduct.grid(row=1, column=0, padx=10, pady=10, sticky=NSEW)
 
-        self.txtBusquedaProducts=ttk.Entry(self.lblframeBusqListProduct,width=100)
-        self.txtBusquedaProducts.grid(row=0,column=0,padx=5,pady=5)
-        self.txtBusquedaProducts.bind('<Key>',self.buscarProductos)
+        self.txtBusquedaProducts = ttk.Entry(self.lblframeBusqListProduct, width=100)
+        self.txtBusquedaProducts.grid(row=0, column=0, padx=5, pady=5)
+        self.txtBusquedaProducts.bind('<Key>', self.buscarProductos)
 
-        #====================TreeView===============
-        self.lblframeTreeListProduct=LabelFrame(self.frameListaProducto)
-        self.lblframeTreeListProduct.grid(row=2,column=0,padx=10,pady=10,sticky=NSEW)
+        # ====================TreeView===============
+        self.lblframeTreeListProduct = LabelFrame(self.frameListaProducto)
+        self.lblframeTreeListProduct.grid(row=2, column=0, padx=10, pady=10, sticky=NSEW)
 
-        columnas=("id_Producto","ID_Proveedor", "NombreProveedor", "producto", "precio", "stock","descripcion")
+        columnas = ("id_Producto", "ID_Proveedor", "NombreProveedor", "producto", "precio", "stock", "descripcion")
 
-        self.TreelistProductosProductos=tb.Treeview(self.lblframeTreeListProduct,columns=columnas,height=17,show='headings',bootstyle='info')
-        self.TreelistProductosProductos.grid(row=0,column=0)
+        self.TreelistProductosProductos = tb.Treeview(self.lblframeTreeListProduct, columns=columnas,
+                                                      height=17, show='headings', bootstyle='info')
+        self.TreelistProductosProductos.grid(row=0, column=0)
 
-        self.TreelistProductosProductos.heading("id_Producto", text="id_Producto", anchor=W)
-        self.TreelistProductosProductos.heading("ID_Proveedor", text="ID Proveedor", anchor=W)
-        self.TreelistProductosProductos.heading("NombreProveedor", text="Nombre Proveedor", anchor=W)
-        self.TreelistProductosProductos.heading("producto", text="producto", anchor=W)
-        self.TreelistProductosProductos.heading("precio", text="precio", anchor=W)
-        self.TreelistProductosProductos.heading("stock", text="stock", anchor=W)
-        self.TreelistProductosProductos.heading("descripcion", text="descripcion", anchor=W)
+        self.TreelistProductosProductos.heading("id_Producto", text="ID PRODUCTO", anchor=W)
+        self.TreelistProductosProductos.heading("ID_Proveedor", text="ID PROVEEDOR", anchor=W)
+        self.TreelistProductosProductos.heading("NombreProveedor", text="NOMBRE PROVEEDOR", anchor=W)
+        self.TreelistProductosProductos.heading("producto", text="PRODUCTO", anchor=W)
+        self.TreelistProductosProductos.heading("precio", text="PRECIO", anchor=W)
+        self.TreelistProductosProductos.heading("stock", text="STOCK", anchor=W)
+        self.TreelistProductosProductos.heading("descripcion", text="DESCRIPCIÓN", anchor=W)
 
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
-                                                             'producto', 'precio', 'stock', 'descripcion']#Solo apareceran 3 pq la clave es secreta SAPAZO
+                                                             'producto', 'precio', 'stock', 'descripcion']
+        # Solo apareceran 3 pq la clave es secreta SAPAZO
 
-        self.TreelistProductosProductos.bind("<<TreeviewSelect>>",self.activar_boton_modi_elimi_productos)
-        #Creando el rico scrollbar
-        TreeScrollListProduct=tb.Scrollbar(self.frameListaProducto,bootstyle='round-success')
-        TreeScrollListProduct.grid(row=2,column=1)
-        #Configu el scroll
+        self.TreelistProductosProductos.bind("<<TreeviewSelect>>", self.activar_boton_modi_elimi_productos)
+        # Creando el rico scrollbar
+        TreeScrollListProduct = tb.Scrollbar(self.frameListaProducto, bootstyle='round-success')
+        TreeScrollListProduct.grid(row=2, column=1)
+        # Configu el scroll
         TreeScrollListProduct.config(command=self.TreelistProductosProductos.yview)
 
-        #Llamar a func mostrar usuarios
+        # Llamar a func mostrar usuarios
         self.MostrarProductos()
-    def activar_boton_modi_elimi_productos(self,event):
+
+    def activar_boton_modi_elimi_productos(self, event):
         item_seleccionado = self.TreelistProductosProductos.focus()
         if item_seleccionado:
             self.btnModificarProduc.config(state="normal")
@@ -654,109 +689,115 @@ class Ventana(tb.Window):
         app.geometry("1450x450+200+250")
         print("estoy cambiando")
         return app
+
     def MostrarProductos(self):
 
         try:
             Crud = Crud_Productos()
             datos = Crud.mostrar_productos()
 
-            registros=self.TreelistProductosProductos.get_children()
+            registros = self.TreelistProductosProductos.get_children()
 
             for elementos in registros:
                 self.TreelistProductosProductos.delete(elementos)
 
             for row in datos:
-                self.TreelistProductosProductos.insert("","end",
+                self.TreelistProductosProductos.insert("", "end",
                                                        text=row[0],
-                                                       values=(row[1],row[2],row[0],row[3],row[4],row[5],row[6]))
+                                                       values=(row[1], row[2], row[0], row[3], row[4], row[5], row[6]))
 
         except sqlite3.Error as e:
 
             print("Error de SQLite:", e)
-            messagebox.showerror("Lista de Productos", f"Ocurrió un error al mostrar la lista de Productos: {e}")
+            messagebox.showerror("Lista de Productos",
+                                 f"Ocurrió un error al mostrar la lista de Productos: {e}")
+
     def ventanaNuevoProducto(self):
-        self.frameNewProduct=Toplevel(self)
+        self.frameNewProduct = Toplevel(self)
         self.frameNewProduct.title('Nuevo Producto')
         self.frameNewProduct.geometry("410x380+700+320")
-        self.frameNewProduct.resizable(False,False)
+        self.frameNewProduct.resizable(False, False)
         self.frameNewProduct.grab_set()
 
         self.db = Consulta_Proveedor()
         self.datos = self.db.Obetener_proveedores()
 
-        lblframeNewProduc=LabelFrame(self.frameNewProduct)
-        lblframeNewProduc.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
+        lblframeNewProduc = LabelFrame(self.frameNewProduct)
+        lblframeNewProduc.grid(row=0, column=0, sticky=NSEW, padx=25, pady=35)
 
-        lblCodeModifyProduct=Label(lblframeNewProduc,text='Id_provedor')
-        lblCodeModifyProduct.grid(row=0,column=0,padx=10,pady=10,sticky=E)
+        lblCodeModifyProduct = Label(lblframeNewProduc, text='ID PROVEEDOR')
+        lblCodeModifyProduct.grid(row=0, column=0, padx=10, pady=10, sticky=E)
         selecionProveedor = StringVar()
         self.txtCodeNewProduc = ttk.Combobox(lblframeNewProduc, values=self.datos,
-                                             textvariable=selecionProveedor, width=40)
+                                             textvariable=selecionProveedor, width=40, state='readonly')
         self.txtCodeNewProduc.grid(row=0, column=1, padx=10, pady=10)
 
-        lblNameNewProduct=Label(lblframeNewProduc,text='Producto')
-        lblNameNewProduct.grid(row=1,column=0,padx=10,pady=10,sticky=E)
-        self.txtNameNewProduct=ttk.Entry(lblframeNewProduc,width=40)
-        self.txtNameNewProduct.grid(row=1,column=1,padx=10,pady=10)
+        lblNameNewProduct = Label(lblframeNewProduc, text='PRODUCTO')
+        lblNameNewProduct.grid(row=1, column=0, padx=10, pady=10, sticky=E)
+        self.txtNameNewProduct = ttk.Entry(lblframeNewProduc, width=40)
+        self.txtNameNewProduct.grid(row=1, column=1, padx=10, pady=10)
 
-        lblPrecioNewProduct=Label(lblframeNewProduc,text='precio')
-        lblPrecioNewProduct.grid(row=2,column=0,padx=10,pady=10,sticky=E)
-        self.txtPrecioNewProduct=ttk.Entry(lblframeNewProduc,width=40)
-        self.txtPrecioNewProduct.grid(row=2,column=1,padx=10,pady=10)
+        lblPrecioNewProduct = Label(lblframeNewProduc, text='PRECIO')
+        lblPrecioNewProduct.grid(row=2, column=0, padx=10, pady=10, sticky=E)
+        self.txtPrecioNewProduct = ttk.Entry(lblframeNewProduc, width=40)
+        self.txtPrecioNewProduct.grid(row=2, column=1, padx=10, pady=10)
 
-        lblStockNewProduct=Label(lblframeNewProduc,text='stock')
-        lblStockNewProduct.grid(row=3,column=0,padx=10,pady=10,sticky=E)
+        lblStockNewProduct = Label(lblframeNewProduc, text='STOCK')
+        lblStockNewProduct.grid(row=3, column=0, padx=10, pady=10, sticky=E)
         self.txtStockNewProduct = ttk.Entry(lblframeNewProduc, width=40)
         self.txtStockNewProduct.grid(row=3, column=1, padx=10, pady=10)
 
-        lblDescripcionNewProduct = Label(lblframeNewProduc, text='Descripcion')
+        lblDescripcionNewProduct = Label(lblframeNewProduc, text='DESCRIPCIÓN')
         lblDescripcionNewProduct.grid(row=4, column=0, padx=10, pady=10, sticky=E)
         self.txtDescripcionNewProduct = ttk.Entry(lblframeNewProduc, width=40)
         self.txtDescripcionNewProduct.grid(row=4, column=1, padx=10, pady=10)
 
-        btnSaveNewProduct=ttk.Button(lblframeNewProduc,text='Guardar',width=38,command=self.guardarProducto)
-        btnSaveNewProduct.grid(row=5,column=1,padx=10,pady=10)
+        btnSaveNewProduct = ttk.Button(lblframeNewProduc, text='Guardar', width=38, command=self.guardarProducto)
+        btnSaveNewProduct.grid(row=5, column=1, padx=10, pady=10)
         self.txtNameNewProduct.focus()
-    def eliminar_letras(self,cadena):
+
+    def eliminar_letras(self, cadena):
         solo_numeros = ''
         for caracter in cadena:
             if caracter.isdigit():
                 solo_numeros += caracter
         return solo_numeros
+
     def guardarProducto(self):
 
-        if (self.txtCodeNewProduc.get()==""
-                or self.txtNameNewProduct.get()==""
-                or self.txtPrecioNewProduct.get()==""
-                or self.txtStockNewProduct.get()==""
-                or self.txtDescripcionNewProduct.get()==""):
+        if (self.txtCodeNewProduc.get() == ""
+                or self.txtNameNewProduct.get() == ""
+                or self.txtPrecioNewProduct.get() == ""
+                or self.txtStockNewProduct.get() == ""
+                or self.txtDescripcionNewProduct.get() == ""):
             messagebox.showwarning('Guardando Producto', 'Algún campo no es válido, por favor revisar')
             return
-        #Capturar errores
+        # Capturar errores
         try:
-            #Establecer conexión
+            # Establecer conexión
             Crud = Crud_Productos()
             dato_nuevo = self.eliminar_letras(self.txtCodeNewProduc.get())
-            Crud.Guardar_Producto(dato_nuevo,self.txtNameNewProduct.get(),
-                                   self.txtPrecioNewProduct.get(),self.txtStockNewProduct.get(),
-                                   self.txtDescripcionNewProduct.get()
-                                   )
+            Crud.Guardar_Producto(dato_nuevo, self.txtNameNewProduct.get(),
+                                  self.txtPrecioNewProduct.get(), self.txtStockNewProduct.get(),
+                                  self.txtDescripcionNewProduct.get()
+                                  )
             messagebox.showinfo('Guardando Producto', "Usuario Guardado Correctamente")
             self.frameNewProduct.destroy()
             self.registrar_en_historial(f"Un Producto a sido agregago por : ",
                                         self.txtUsuario.get())
             self.ventanaListaProductos()
-            #Cerrar la conexion
+            # Cerrar la conexion
         except sqlite3.Error as e:
             print("Error de SQLite:", e)
             messagebox.showerror("Guardando Productos", f"Ocurrió un error al Guardar Productos: {e}")
-    def buscarProductos(self,event):
-        #Capturar errores
+
+    def buscarProductos(self, event):
+        # Capturar errores
         try:
             Crud = Crud_Productos()
-            #Limpiar data del treeview
-            registros=self.TreelistProductosProductos.get_children()
-            #Recorrer registros
+            # Limpiar data del treeview
+            registros = self.TreelistProductosProductos.get_children()
+            # Recorrer registros
             for elementos in registros:
                 self.TreelistProductosProductos.delete(elementos)
             busqueda = self.txtBusquedaProducts.get()
@@ -764,116 +805,119 @@ class Ventana(tb.Window):
                 # Consultar DB
                 datos = Crud.Buscar_Productos(busqueda)
             else:
-            # Consulta completa si el campo de búsqueda está vacío
+                # Consulta completa si el campo de búsqueda está vacío
                 datos = Crud.Buscar_Productos(busqueda)
                 # Traer todos los registros y guardar en "datos"
 
                 # Recorrer cada fila encontrada
             for row in datos:
-                    # Llenar treewbiew
-                self.TreelistProductosProductos.insert("", "end", text=row[0], values=(row[1], row[2], row[0], row[3], row[4], row[5],row[6]))
+                # Llenar treewbiew
+                self.TreelistProductosProductos.insert("", "end", text=row[0],
+                                                       values=(row[1], row[2], row[0], row[3], row[4], row[5], row[6]))
 
         except sqlite3.Error as e:
             # Mensaje de error porsiaca
             print("Busqueda de productos", f"Ocurrió un error al buscar en la lista de productos: {e}")
+
     def ventanaModificarProductos(self):
 
-        self.ProductoSeleccionado=self.TreelistProductosProductos.focus()
-        self.ValModPro=self.TreelistProductosProductos.item(self.ProductoSeleccionado,'values')
+        self.ProductoSeleccionado = self.TreelistProductosProductos.focus()
+        self.ValModPro = self.TreelistProductosProductos.item(self.ProductoSeleccionado, 'values')
 
-        if self.ValModPro!='':
-            self.frameModifyProduc=Toplevel(self)
+        if self.ValModPro != '':
+            self.frameModifyProduc = Toplevel(self)
             self.frameModifyProduc.title('Nuevo Usuario')
             self.frameModifyProduc.geometry('500x430+700+320')
-            #self.CentrarVentanaModificarUser(400,300)#tamaño
-            self.frameModifyProduc.resizable(False,False)
+            # self.CentrarVentanaModificarUser(400,300)#tamaño
+            self.frameModifyProduc.resizable(False, False)
             self.frameModifyProduc.grab_set()
             self.db = Consulta_Proveedor()
             self.datos = self.db.Obetener_proveedores()
-            lblModifyProduct=LabelFrame(self.frameModifyProduc)
-            lblModifyProduct.grid(row=0,column=0,sticky=NSEW,padx=25,pady=35)
+            lblModifyProduct = LabelFrame(self.frameModifyProduc)
+            lblModifyProduct.grid(row=0, column=0, sticky=NSEW, padx=25, pady=35)
 
-            lblCodeProducModifyProduct=Label(lblModifyProduct,text='Codigo del producto')
-            lblCodeProducModifyProduct.grid(row=0,column=0,padx=10,pady=10,sticky=E)
-            self.txtCodeProductoModifyProduct=ttk.Entry(lblModifyProduct,width=40)
-            self.txtCodeProductoModifyProduct.grid(row=0,column=1,padx=10,pady=10)
+            lblCodeProducModifyProduct = Label(lblModifyProduct, text='Codigo del producto')
+            lblCodeProducModifyProduct.grid(row=0, column=0, padx=10, pady=10, sticky=E)
+            self.txtCodeProductoModifyProduct = ttk.Entry(lblModifyProduct, width=40)
+            self.txtCodeProductoModifyProduct.grid(row=0, column=1, padx=10, pady=10)
 
-            lblCodeModifyProduct=Label(lblModifyProduct,text='Nuevo Codigo de provedor')
-            lblCodeModifyProduct.grid(row=1,column=0,padx=10,pady=10,sticky=E)
+            lblCodeModifyProduct = Label(lblModifyProduct, text='Nuevo Codigo de provedor')
+            lblCodeModifyProduct.grid(row=1, column=0, padx=10, pady=10, sticky=E)
             selecionProveedor = StringVar()
             self.txtCodeProveModifyProduct = ttk.Combobox(lblModifyProduct, values=self.datos,
                                                           textvariable=selecionProveedor, width=40)
             self.txtCodeProveModifyProduct.grid(row=1, column=1, padx=10, pady=10)
 
-            lblModifyNewProduct=Label(lblModifyProduct,text='Nuevo Nombre')
-            lblModifyNewProduct.grid(row=2,column=0,padx=10,pady=10,sticky=E)
-            self.txtNewNameModifyProduct=ttk.Entry(lblModifyProduct,width=40)
-            self.txtNewNameModifyProduct.grid(row=2,column=1,padx=10,pady=10)
+            lblModifyNewProduct = Label(lblModifyProduct, text='Nuevo Nombre')
+            lblModifyNewProduct.grid(row=2, column=0, padx=10, pady=10, sticky=E)
+            self.txtNewNameModifyProduct = ttk.Entry(lblModifyProduct, width=40)
+            self.txtNewNameModifyProduct.grid(row=2, column=1, padx=10, pady=10)
 
-            lblClaveModifyProdut=Label(lblModifyProduct,text='Nuevo Precio')
-            lblClaveModifyProdut.grid(row=3,column=0,padx=10,pady=10,sticky=E)
-            self.txtPrecioModifyProduct=ttk.Entry(lblModifyProduct,width=40)
-            self.txtPrecioModifyProduct.grid(row=3,column=1,padx=10,pady=10)
+            lblClaveModifyProdut = Label(lblModifyProduct, text='Nuevo Precio')
+            lblClaveModifyProdut.grid(row=3, column=0, padx=10, pady=10, sticky=E)
+            self.txtPrecioModifyProduct = ttk.Entry(lblModifyProduct, width=40)
+            self.txtPrecioModifyProduct.grid(row=3, column=1, padx=10, pady=10)
 
-            lblStockModifyProduct=Label(lblModifyProduct,text='Nuevo Stock')
-            lblStockModifyProduct.grid(row=4,column=0,padx=10,pady=10,sticky=E)
-            self.txtStockModifyProduct=ttk.Entry(lblModifyProduct,width=40)
-            self.txtStockModifyProduct.grid(row=4,column=1,padx=10,pady=10)
-            
-            lblDescripcionModifyProduct=Label(lblModifyProduct,text='Nuevo Descripcion')
-            lblDescripcionModifyProduct.grid(row=5,column=0,padx=10,pady=10,sticky=E)
-            self.txtDescripModifyProduct=ttk.Entry(lblModifyProduct,width=40)
-            self.txtDescripModifyProduct.grid(row=5,column=1,padx=10,pady=10)
-            
+            lblStockModifyProduct = Label(lblModifyProduct, text='Nuevo Stock')
+            lblStockModifyProduct.grid(row=4, column=0, padx=10, pady=10, sticky=E)
+            self.txtStockModifyProduct = ttk.Entry(lblModifyProduct, width=40)
+            self.txtStockModifyProduct.grid(row=4, column=1, padx=10, pady=10)
 
+            lblDescripcionModifyProduct = Label(lblModifyProduct, text='Nuevo Descripcion')
+            lblDescripcionModifyProduct.grid(row=5, column=0, padx=10, pady=10, sticky=E)
+            self.txtDescripModifyProduct = ttk.Entry(lblModifyProduct, width=40)
+            self.txtDescripModifyProduct.grid(row=5, column=1, padx=10, pady=10)
 
-            btnSaveModifyUser=ttk.Button(lblModifyProduct,text='Modificar',width=38,bootstyle='warning', command=self.modificarProducto)
-            btnSaveModifyUser.grid(row=7,column=1,padx=10,pady=10)
+            btnSaveModifyUser = ttk.Button(lblModifyProduct, text='Modificar', width=38, bootstyle='warning',
+                                           command=self.modificarProducto)
+            btnSaveModifyUser.grid(row=7, column=1, padx=10, pady=10)
             self.llenarEntrysPaModificarProducts()
-            #Foco en el nombre usuario
+            # Foco en el nombre usuario
             self.txtNewNameModifyProduct.focus()
+
     def llenarEntrysPaModificarProducts(self):
 
-        self.txtCodeProductoModifyProduct.delete(0,END)
-        self.txtCodeProveModifyProduct.delete(0,END)
-        self.txtNewNameModifyProduct.delete(0,END)
-        self.txtPrecioModifyProduct.delete(0,END)
-        self.txtStockModifyProduct.delete(0,END)
-        self.txtDescripModifyProduct.delete(0,END)
+        self.txtCodeProductoModifyProduct.delete(0, END)
+        self.txtCodeProveModifyProduct.delete(0, END)
+        self.txtNewNameModifyProduct.delete(0, END)
+        self.txtPrecioModifyProduct.delete(0, END)
+        self.txtStockModifyProduct.delete(0, END)
+        self.txtDescripModifyProduct.delete(0, END)
 
-        self.txtCodeProductoModifyProduct.insert(0,self.ValModPro[0])
+        self.txtCodeProductoModifyProduct.insert(0, self.ValModPro[0])
         self.txtCodeProductoModifyProduct.config(state='readonly')
-        self.txtCodeProveModifyProduct.insert(0,self.ValModPro[1])
-        self.txtNewNameModifyProduct.insert(0,self.ValModPro[3])
-        self.txtPrecioModifyProduct.insert(0,self.ValModPro[4])
-        self.txtStockModifyProduct.insert(0,self.ValModPro[5])
-        self.txtDescripModifyProduct.insert(0,self.ValModPro[6])
+        self.txtCodeProveModifyProduct.insert(0, self.ValModPro[1])
+        self.txtNewNameModifyProduct.insert(0, self.ValModPro[3])
+        self.txtPrecioModifyProduct.insert(0, self.ValModPro[4])
+        self.txtStockModifyProduct.insert(0, self.ValModPro[5])
+        self.txtDescripModifyProduct.insert(0, self.ValModPro[6])
+
     def modificarProducto(self):
 
-        if (self.txtCodeProductoModifyProduct.get()=="" 
-            or self.txtCodeProveModifyProduct.get()=="" 
-            or self.txtNewNameModifyProduct.get()=="" 
-            or self.txtPrecioModifyProduct.get()=="" 
-            or self.txtStockModifyProduct.get()=="" 
-            or self.txtDescripModifyProduct.get() == ""):
+        if (self.txtCodeProductoModifyProduct.get() == ""
+                or self.txtCodeProveModifyProduct.get() == ""
+                or self.txtNewNameModifyProduct.get() == ""
+                or self.txtPrecioModifyProduct.get() == ""
+                or self.txtStockModifyProduct.get() == ""
+                or self.txtDescripModifyProduct.get() == ""):
             messagebox.showwarning('Modificando Producto', 'Algún campo no es válido, por favor revisar')
-            return 
+            return
 
         try:
 
             Crud = Crud_Productos()
             dato_nuevo = self.eliminar_letras(self.txtCodeProveModifyProduct.get())
-            datosModificarUsuarios=(
-            dato_nuevo,
-            self.txtNewNameModifyProduct.get(),
-            self.txtPrecioModifyProduct.get(),
-            self.txtStockModifyProduct.get(),
-            self.txtDescripModifyProduct.get()) 
+            datosModificarUsuarios = (
+                dato_nuevo,
+                self.txtNewNameModifyProduct.get(),
+                self.txtPrecioModifyProduct.get(),
+                self.txtStockModifyProduct.get(),
+                self.txtDescripModifyProduct.get())
 
-            Crud.Modificar_Producto(self.txtCodeProductoModifyProduct.get(),datosModificarUsuarios)
+            Crud.Modificar_Producto(self.txtCodeProductoModifyProduct.get(), datosModificarUsuarios)
             messagebox.showinfo('Modificar Producto', "Producto Modificado Correctamente")
 
-            self.ValModPro=self.TreelistProductosProductos.item(
+            self.ValModPro = self.TreelistProductosProductos.item(
                 self.ProductoSeleccionado,
                 text='',
                 values=(
@@ -892,6 +936,7 @@ class Ventana(tb.Window):
         except sqlite3.Error as e:
             print("Error de SQLite:", e)
             messagebox.showerror("Modificar Producto", f"Ocurrió un error al Modificar Producto: {e}")
+
     def borrarProducto(self):
 
         producto_seleccionado = self.TreelistProductosProductos.focus()
@@ -911,24 +956,28 @@ class Ventana(tb.Window):
             self.registrar_en_historial("Un Producto ha sido borrado por: ", self.txtUsuario.get())
         except ValueError as e:
             messagebox.showerror('Borrar Producto', f'Ocurrió un error al borrar el producto: {e}')
-    #----------Historial------------
+
+    # ----------Historial------------
     def mostrarHistorial(self):
         for widget in self.frameCenter.winfo_children():
             widget.destroy()
 
-        self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id","fecha_hora", "accion", "usuario"), height=17, show='headings',bootstyle='danger')
+        self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id", "fecha_hora", "accion", "usuario"),
+                                              height=17, show='headings', bootstyle='danger')
         self.TreelistHistorial.grid(row=0, column=0)
 
         self.TreelistHistorial.heading("id", text="ID", anchor=W)
-        self.TreelistHistorial.heading("accion", text="Acción", anchor=W)
-        self.TreelistHistorial.heading("fecha_hora", text="Fecha y Hora", anchor=W)
-        self.TreelistHistorial.heading("usuario", text="Usuario", anchor=W)
+        self.TreelistHistorial.heading("accion", text="ACCIÓN", anchor=W)
+        self.TreelistHistorial.heading("fecha_hora", text="FECHA", anchor=W)
+        self.TreelistHistorial.heading("usuario", text="USUARIO", anchor=W)
 
         self.cargarHistorial()
+
     def configurar_VentanaListaHistorial(self):
         global app
         app.geometry("1050x400+450+300")
         return app
+
     def cargarHistorial(self):
         try:
             db = Consulta_Historial()
@@ -939,17 +988,19 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             messagebox.showerror("Cargar Historial", f"Error al cargar el historial: {e}")
+
     def registrar_en_historial(self, accion, usuario):
         try:
             db = Consulta_Historial()
 
             fecha_hora_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            db.Registro_Historial(fecha_hora_actual, accion,usuario)
+            db.Registro_Historial(fecha_hora_actual, accion, usuario)
 
         except sqlite3.Error as e:
             messagebox.showerror("Registro en Historial", f"Error al registrar en el historial: {e}")
-    #borrar tablas
+
+    # borrar tablas
     def subventanborrarTabla(self):
         self.frameborrarTabla = Toplevel(self)
         self.frameborrarTabla.title('Borrar Tabla')
@@ -962,12 +1013,14 @@ class Ventana(tb.Window):
         btnborraProduc = ttk.Button(self.frameborrarTabla, text='Borrar Producto', width=15,
                                     command=self.borrar_tabla_producto)
         btnborraProduc.grid(row=1, column=0, padx=10, pady=10)
+
     def borrar_tabla_historial(self):
         borra = Consulta_Historial()
         borra.borrar_tabla()
         messagebox.showinfo("Borrar Tabla Historial", "Tabla exitosamente Borrada")
         self.mostrarHistorial()
         self.frameborrarTabla.destroy()
+
     def borrar_tabla_producto(self):
         borra = Crud_Productos()
         borra.borrar_tabla()
@@ -975,32 +1028,33 @@ class Ventana(tb.Window):
         self.mostrarHistorial()
         self.frameborrarTabla.destroy()
 
-#------------------------- Registro_exel ---------------
+    # ------------------------- Registro_exel ---------------
     def ventana_Imprimir_Resgistro(self):
         self.ventana_Registro_Excel = Toplevel(self)
-        self.ventana_Registro_Excel.title('Extracion')
+        self.ventana_Registro_Excel.title('Extracción')
         self.ventana_Registro_Excel.geometry("285x150+900+400")
         self.ventana_Registro_Excel.grab_set()
-        txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',font= ('Coolvetica', 10, 'bold'), wraplength=250)
+        txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',
+                             font=('Coolvetica', 10, 'bold'), wraplength=250)
         txtTexto.grid(row=0, column=1, padx=10, pady=10)
 
         selecionTabla = IntVar()
-        self.txtTablaImpre = ttk.Combobox(self.ventana_Registro_Excel, values=("Producto","Historial"),
-                                             textvariable=selecionTabla, width=40)
+        self.txtTablaImpre = ttk.Combobox(self.ventana_Registro_Excel, values=("Producto", "Historial"),
+                                          textvariable=selecionTabla, width=40, state='readonly')
         self.txtTablaImpre.grid(row=1, column=1, padx=10, pady=10)
 
         btnExpoExcel = ttk.Button(self.ventana_Registro_Excel, text='Imprimir', width=15,
-                                    command=self.Imprimir_a_excel)
+                                  command=self.Imprimir_a_excel)
         btnExpoExcel.grid(row=2, column=1, padx=10, pady=10)
 
     def obtenerDatosExportar(self):
         db = Consulta_Exportacion()
         if self.txtTablaImpre.get() == "Historial":
             dato = self.txtTablaImpre.get()
-            conexion=sqlite3.connect('whatislove.db')
-            consulta=db.Obtener_Datos_Exportar(dato)
+            conexion = sqlite3.connect('whatislove.db')
+            consulta = db.Obtener_Datos_Exportar(dato)
 
-            df=pd.read_sql_query(consulta,conexion)
+            df = pd.read_sql_query(consulta, conexion)
             return df
         elif self.txtTablaImpre.get() == "Producto":
             dato = self.txtTablaImpre.get()
@@ -1009,7 +1063,7 @@ class Ventana(tb.Window):
 
             df = pd.read_sql_query(consulta, conexion)
             return df
-    
+
     def Imprimir_a_excel(self):
         df = self.obtenerDatosExportar()
 
@@ -1017,17 +1071,23 @@ class Ventana(tb.Window):
 
         if file_path:
             df.to_excel(file_path, index=False)
-            messagebox.showinfo("Consulta Exitosa",f"Tabla {self.txtTablaImpre.get()} exportada exitosamente ")
+            messagebox.showinfo("Consulta Exitosa",
+                                f"Tabla {self.txtTablaImpre.get()} exportada exitosamente")
             self.ventana_Registro_Excel.destroy()
-#--------Arranque------------
+
+
+# --------Arranque------------
 def main():
     global app
-    app=Ventana()
+    app = Ventana()
     app.title('Back Pack')
     app.geometry("300x500+850+200")
     tb.Style('litera')
-    app.iconbitmap("Logo.ico")
+    ruta2 = Path(__file__).parent  # Buenas Practicas
+    archivo2 = ruta2 / "Logo.ico"
+    app.iconbitmap(archivo2)
     app.mainloop()
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()
