@@ -1059,18 +1059,19 @@ class Ventana(tb.Window):
 
     def obtenerDatosExportar(self):
         db = Consulta_Exportacion()
+        ruta = Path(__file__).parent  # Buenas Practicas
+        archivo = ruta / "whatislove.db"
+        conexion = sqlite3.connect("{0}".format(archivo))
+
         if self.txtTablaImpre.get() == "Historial":
             dato = self.txtTablaImpre.get()
-            conexion = sqlite3.connect('whatislove.db')
             consulta = db.Obtener_Datos_Exportar(dato)
-
             df = pd.read_sql_query(consulta, conexion)
             return df
+
         elif self.txtTablaImpre.get() == "Producto":
             dato = self.txtTablaImpre.get()
-            conexion = sqlite3.connect('whatislove.db')
             consulta = db.Obtener_Datos_Exportar(dato)
-
             df = pd.read_sql_query(consulta, conexion)
             return df
 
