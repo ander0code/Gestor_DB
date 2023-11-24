@@ -90,9 +90,14 @@ class Ventana(tb.Window):
                                                   self.configurar_VentanaListaProvedor()])
         btnClientes.grid(row=2, column=0, padx=10, pady=10)
 
+
         btnUsuarios = ttk.Button(self.frameLeft, text='Usuarios', width=15,
                                  command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),
                                                   self.configurar_VentanaListaUsuarios()])
+        if not self.es_administrador_actual():
+            btnUsuarios.config(state="disable")
+        else:
+            btnUsuarios.config(state="normal")
         btnUsuarios.grid(row=3, column=0, padx=10, pady=10)
 
         btnReportes = ttk.Button(self.frameLeft, text='Reportes', width=15,
@@ -103,9 +108,12 @@ class Ventana(tb.Window):
         btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15,
                                    command=self.ventana_Imprimir_Resgistro)
         btnExportarDB.grid(row=5, column=0, padx=10, pady=10)
-
         btnRestaurar_DB = ttk.Button(self.frameLeft, text='Restaurar Tabla', width=15,
                                      command=self.subventanborrarTabla)
+        if not self.es_administrador_actual():
+            btnRestaurar_DB.config(state="disable")
+        else:
+            btnRestaurar_DB.config(state="normal")
         btnRestaurar_DB.grid(row=6, column=0, padx=10, pady=10)
 
         btnSalirDelPrograma = ttk.Button(self.frameLeft, text='Salir', width=15, bootstyle='danger',
