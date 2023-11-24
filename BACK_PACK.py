@@ -42,8 +42,6 @@ class Ventana(tb.Window):
         lbllogo = ttk.Label(self.lblframe_login, image=logo_image)
         lbllogo.image = logo_image  # Mantener una referencia para evitar que el recolector de basura lo elimine
         lbllogo.pack(padx=10, pady=35)
-        # lbltitulo = ttk.Label(self.lblframe_login, text='Inicar Sesion',bootstyle="light", font=('Arial', 18))
-        # lbltitulo.pack(padx=10, pady=35)
 
         self.txtUsuario = ttk.Entry(self.lblframe_login, width=40, bootstyle='secondary', justify=CENTER)
         self.txtUsuario.pack(padx=10, pady=10)
@@ -140,6 +138,10 @@ class Ventana(tb.Window):
 
                     self.ventanaMenu()
             else:
+                self.txtUsuario.delete(0, "end")
+                self.txtClave.delete(0, "end")
+                self.set_placeholder(self.txtUsuario, "Usuario")
+                self.set_placeholder(self.txtClave, "Contraseña")
                 messagebox.showerror("INICIO SECION", "DATOS INCORRECTOS")
 
         except sqlite3.Error as e:
@@ -256,7 +258,7 @@ class Ventana(tb.Window):
                 self.TreelistUsuarios.delete(elementos)
 
             for row in datos:
-                self.TreelistUsuarios.insert("", 0, text=row[0], values=(row[0], row[1], row[2], row[3]))
+                self.TreelistUsuarios.insert("", "end", text=row[0], values=(row[0], row[1], row[2], row[3]))
 
         except sqlite3.Error as e:
 
@@ -590,7 +592,7 @@ class Ventana(tb.Window):
             self.TreelistUsuarios.delete(elementos)
 
         for row in datos:
-            self.TreelistUsuarios.insert("", 0, text=row[0], values=(row[0], row[1], row[2], row[3]))
+            self.TreelistUsuarios.insert("", "end", text=row[0], values=(row[0], row[1], row[2], row[3]))
 
     def MostrarProductosProveedor(self):
         proveedor_seleccionado = self.TreelistUsuarios.focus()
