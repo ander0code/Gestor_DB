@@ -26,8 +26,6 @@ class Ventana(tb.Window):
         self.rol_usuario_actual = None
 
     def ventanaLogin(self):
-        # self.attributes('-fullscreen', True)
-        # self.configurar_VentanaLogin()
         self.frame_login = Frame(self)
         self.frame_login.pack()
 
@@ -69,8 +67,9 @@ class Ventana(tb.Window):
             entry_widget.insert(0, placeholder)
 
     def ventanaMenu(self):
+        global app
+        Centrar_ventana(app,170,400)
         tb.Style('darkly')
-        self.configurar_VentanaMenu()
         self.frameLeft = Frame(self, width=200)
         self.frameLeft.grid(row=0, column=0, sticky=NSEW)
         self.frameCenter = Frame(self)
@@ -82,18 +81,18 @@ class Ventana(tb.Window):
 
         btnProductos = ttk.Button(self.frameLeft, text='Productos', width=15,
                                   command=lambda: [self.ventanaListaProductos(),
-                                                   self.configurar_VentanaListaProductos()])
+                                                   Centrar_ventana(app,1450,450)])
         btnProductos.grid(row=1, column=0, padx=10, pady=10)
 
         btnClientes = ttk.Button(self.frameLeft, text='Proveedores', width=15,
                                  command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=True),
-                                                  self.configurar_VentanaListaProvedor()])
+                                                  Centrar_ventana(app,830,450)])
         btnClientes.grid(row=2, column=0, padx=10, pady=10)
 
 
         btnUsuarios = ttk.Button(self.frameLeft, text='Usuarios', width=15,
                                  command=lambda: [self.ventanaListaUsuarios(mostrar_proveedores=False),
-                                                  self.configurar_VentanaListaUsuarios()])
+                                                  Centrar_ventana(app,830,450)])
         if not self.es_administrador_actual():
             btnUsuarios.config(state="disable")
         else:
@@ -102,7 +101,7 @@ class Ventana(tb.Window):
 
         btnReportes = ttk.Button(self.frameLeft, text='Reportes', width=15,
                                  command=lambda: [self.mostrarHistorial(),
-                                                  self.configurar_VentanaListaHistorial()])
+                                                  Centrar_ventana(app,1050,400)])
         btnReportes.grid(row=4, column=0, padx=10, pady=10)
 
         btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15,
@@ -122,7 +121,6 @@ class Ventana(tb.Window):
 
     def BtnSalir(self):
         self.destroy()
-
     def logueo(self):
 
         try:
@@ -154,12 +152,6 @@ class Ventana(tb.Window):
 
         except sqlite3.Error as e:
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
-
-    def configurar_VentanaMenu(self):
-        global app
-        app.geometry("170x400+900+300")
-        return app
-
     # ---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores=False):
         self.frameListaUsuarios = Frame(self.frameCenter)
@@ -246,12 +238,6 @@ class Ventana(tb.Window):
         else:
             self.btnNuevoUsuario.config(state="disabled")
 
-    def configurar_VentanaListaUsuarios(self):
-        global app
-        app.geometry("830x450+500+300")
-        print("estoy cambiando")
-        return app
-
     def MostrarUsuarios(self):
 
         try:
@@ -282,7 +268,7 @@ class Ventana(tb.Window):
 
         self.frameNewUser = Toplevel(self)
         self.frameNewUser.title('Nuevo Usuario')
-        self.frameNewUser.geometry("400x300+800+350")
+        Centrar_ventana(self.frameNewUser,400,300)
         self.frameNewUser.resizable(False, False)
         self.frameNewUser.grab_set()
 
@@ -405,7 +391,7 @@ class Ventana(tb.Window):
         if self.ValModUsu != '':
             self.frameModifyUser = Toplevel(self)
             self.frameModifyUser.title('Nuevo Usuario')
-            self.frameModifyUser.geometry('400x300+800+350')
+            Centrar_ventana(self.frameModifyUser,400,300)
 
             self.frameModifyUser.resizable(False, False)
             self.frameModifyUser.grab_set()
@@ -462,20 +448,12 @@ class Ventana(tb.Window):
             return
 
         try:
-
-            miConexion = sqlite3.connect('whatislove.db')
-            # Crear cursor
-            miCursor = miConexion.cursor()
-
+            db = Crud_Usuarios()
             datosModificarUsuarios = (self.txtNameModifyUser.get(),
                                       self.txtClaveModifyUser.get(),
                                       self.txtRolModifyUser.get())
-            miCursor.execute("UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo=" + self.txtCodeModifyUser.get(),
-                             (datosModificarUsuarios))
-
+            db.Modificar_Usuario(self.txtCodeModifyUser.get(),datosModificarUsuarios)
             messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
-
-            miConexion.commit()
 
             self.ValModUsu = self.TreelistUsuarios.item(
                 self.usuarioSeleccionado, text='',
@@ -488,7 +466,7 @@ class Ventana(tb.Window):
                                         self.txtUsuario.get())
             self.frameModifyUser.destroy()
             self.ventanaListaUsuarios()
-            miConexion.close()
+
 
         except:
             messagebox.showerror("Modificar Usuarios", "Ocurrió un error al Modificar Usuario")
@@ -557,8 +535,7 @@ class Ventana(tb.Window):
         self.frameListaProductos = Toplevel(self)
         self.frameListaProductos.title('Lista de Productos')
         self.frameListaProductos.resizable(False, False)
-
-        self.frameListaProductos.geometry("1250x340+325+325")
+        Centrar_ventana(self.frameListaProductos,1250,340)
 
         self.frameListaProductos.grab_set()
         self.lblframeBotonesListProd = LabelFrame(self.frameListaProductos)
@@ -585,12 +562,6 @@ class Ventana(tb.Window):
         TreeScrollListProd.grid(row=2, column=1)
         TreeScrollListProd.config(command=self.TreelistProductosPro.yview)
         self.MostrarProductosProveedor()
-
-    def configurar_VentanaListaProvedor(self):
-        global app
-        app.geometry("830x450+500+300")
-        print("estoy cambiando")
-        return app
 
     def mostrar_proveedores(self):
         crud = Consulta_Proveedor()
@@ -625,6 +596,7 @@ class Ventana(tb.Window):
             # Llenar treewbiew
             self.TreelistUsuarios.insert("", 0, text=proveedor[0],
                                          values=(proveedor[0], proveedor[1], proveedor[2], proveedor[3]))
+
 
     # ----------Productos-----------
     def ventanaListaProductos(self):
@@ -694,12 +666,6 @@ class Ventana(tb.Window):
             self.btnModificarProduc.config(state="normal")
             self.btnEliminarProduc.config(state="normal")
 
-    def configurar_VentanaListaProductos(self):
-        global app
-        app.geometry("1450x450+200+250")
-        print("estoy cambiando")
-        return app
-
     def MostrarProductos(self):
 
         try:
@@ -725,7 +691,7 @@ class Ventana(tb.Window):
     def ventanaNuevoProducto(self):
         self.frameNewProduct = Toplevel(self)
         self.frameNewProduct.title('Nuevo Producto')
-        self.frameNewProduct.geometry("410x380+700+320")
+        Centrar_ventana(self.frameNewProduct,440,380)
         self.frameNewProduct.resizable(False, False)
         self.frameNewProduct.grab_set()
 
@@ -837,7 +803,7 @@ class Ventana(tb.Window):
         if self.ValModPro != '':
             self.frameModifyProduc = Toplevel(self)
             self.frameModifyProduc.title('Nuevo Usuario')
-            self.frameModifyProduc.geometry('500x430+700+320')
+            Centrar_ventana(self.frameModifyProduc,500,430)
             # self.CentrarVentanaModificarUser(400,300)#tamaño
             self.frameModifyProduc.resizable(False, False)
             self.frameModifyProduc.grab_set()
@@ -983,11 +949,6 @@ class Ventana(tb.Window):
 
         self.cargarHistorial()
 
-    def configurar_VentanaListaHistorial(self):
-        global app
-        app.geometry("1050x400+450+300")
-        return app
-
     def cargarHistorial(self):
         try:
             db = Consulta_Historial()
@@ -1014,7 +975,7 @@ class Ventana(tb.Window):
     def subventanborrarTabla(self):
         self.frameborrarTabla = Toplevel(self)
         self.frameborrarTabla.title('Borrar Tabla')
-        self.frameborrarTabla.geometry("135x100+900+400")
+        Centrar_ventana(self.frameborrarTabla,135,100)
         self.frameborrarTabla.grab_set()
         btnborrarHistorial = ttk.Button(self.frameborrarTabla, text='Borrar Historial', width=15,
                                         command=self.borrar_tabla_historial)
@@ -1042,7 +1003,7 @@ class Ventana(tb.Window):
     def ventana_Imprimir_Resgistro(self):
         self.ventana_Registro_Excel = Toplevel(self)
         self.ventana_Registro_Excel.title('Extracción')
-        self.ventana_Registro_Excel.geometry("285x150+900+400")
+        Centrar_ventana(self.ventana_Registro_Excel,285,150)
         self.ventana_Registro_Excel.grab_set()
         txtTexto = ttk.Label(self.ventana_Registro_Excel, text='Indique que tabla desea Imprimir',
                              font=('Coolvetica', 10, 'bold'), wraplength=250)
@@ -1085,14 +1046,20 @@ class Ventana(tb.Window):
             messagebox.showinfo("Consulta Exitosa",
                                 f"Tabla {self.txtTablaImpre.get()} exportada exitosamente")
             self.ventana_Registro_Excel.destroy()
-
-
+#---------centrar ventanas--------
+def Centrar_ventana(ventana, ancho, altura):
+    ventana.update_idletasks()
+    ventResolucionX = ventana.winfo_screenwidth()
+    ventResolucionY = ventana.winfo_screenheight()
+    centrar_X = int((ventResolucionX / 2) - (ancho / 2))
+    centrar_Y = int((ventResolucionY / 2) - (altura / 2))
+    ventana.geometry("{}x{}+{}+{}".format(ancho, altura, centrar_X, centrar_Y))
 # --------Arranque------------
 def main():
     global app
     app = Ventana()
     app.title('Back Pack')
-    app.geometry("300x500+850+200")
+    Centrar_ventana(app,300,500)
     tb.Style('litera')
     ruta2 = Path(__file__).parent  # Buenas Practicas
     archivo2 = ruta2 / "Logo.ico"
