@@ -81,7 +81,7 @@ class Ventana(tb.Window):
 
         btnProductos = ttk.Button(self.frameLeft, text='Productos', width=15,
                                   command=lambda: [self.ventanaListaProductos(),
-                                                   Centrar_ventana(app,1450,450)])
+                                                   Centrar_ventana(app,870,450)])
         btnProductos.grid(row=1, column=0, padx=10, pady=10)
 
         btnClientes = ttk.Button(self.frameLeft, text='Proveedores', width=15,
@@ -101,7 +101,7 @@ class Ventana(tb.Window):
 
         btnReportes = ttk.Button(self.frameLeft, text='Reportes', width=15,
                                  command=lambda: [self.mostrarHistorial(),
-                                                  Centrar_ventana(app,1050,400)])
+                                                  Centrar_ventana(app,780,400)])
         btnReportes.grid(row=4, column=0, padx=10, pady=10)
 
         btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15,
@@ -193,10 +193,10 @@ class Ventana(tb.Window):
         else:
             self.TreelistUsuarios.bind("<<TreeviewSelect>>", self.activar_boton_Modificar_Eliminar)
 
-            TreeScrollListUsu = tb.Scrollbar(self.frameListaUsuarios, bootstyle='round-success')
-            TreeScrollListUsu.grid(row=2, column=1)
+        TreeScrollListUsu = tb.Scrollbar(self.frameListaUsuarios, bootstyle='round-success')
+        TreeScrollListUsu.grid(row=2, column=1,)
             # Configu el scroll
-            TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
+        TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
 
         if mostrar_proveedores:
 
@@ -535,7 +535,7 @@ class Ventana(tb.Window):
         self.frameListaProductos = Toplevel(self)
         self.frameListaProductos.title('Lista de Productos')
         self.frameListaProductos.resizable(False, False)
-        Centrar_ventana(self.frameListaProductos,1250,340)
+        Centrar_ventana(self.frameListaProductos,650,340)
 
         self.frameListaProductos.grab_set()
         self.lblframeBotonesListProd = LabelFrame(self.frameListaProductos)
@@ -549,11 +549,22 @@ class Ventana(tb.Window):
                                                 bootstyle='info')
         self.TreelistProductosPro.grid(row=0, column=0)
         self.TreelistProductosPro.heading("ID Producto", text="ID PRODUCTO", anchor=W)
-        self.TreelistProductosPro.heading("Nombre_proveedor", text="NOMBRE PROVEEDOR", anchor=W)
-        self.TreelistProductosPro.heading("Nombre del Producto", text="NOMBRE PRODUCTO", anchor=W)
+        self.TreelistProductosPro.column("ID Producto", width=100, anchor=W, stretch=NO)
+
+        self.TreelistProductosPro.heading("Nombre_proveedor", text="PROVEEDOR", anchor=W)
+        self.TreelistProductosPro.column("Nombre_proveedor", width=100, anchor=W, stretch=NO)
+
+        self.TreelistProductosPro.heading("Nombre del Producto", text="PRODUCTO", anchor=W)
+        self.TreelistProductosPro.column("Nombre del Producto", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosPro.heading("Precio", text="PRECIO", anchor=W)
+        self.TreelistProductosPro.column("Precio", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosPro.heading("Stock", text="STOCK", anchor=W)
+        self.TreelistProductosPro.column("Stock", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosPro.heading("Descripción", text="DESCRIPCIÓN", anchor=W)
+        self.TreelistProductosPro.column("Descripción", width=100, anchor=W, stretch=NO)
 
         self.TreelistProductosPro['displaycolumns'] = ['ID Producto', 'Nombre_proveedor', 'Nombre del Producto',
                                                        'Precio', 'Stock', 'Descripción']
@@ -630,7 +641,7 @@ class Ventana(tb.Window):
 
         # ====================TreeView===============
         self.lblframeTreeListProduct = LabelFrame(self.frameListaProducto)
-        self.lblframeTreeListProduct.grid(row=2, column=0, padx=10, pady=10, sticky=NSEW)
+        self.lblframeTreeListProduct.grid(row=2, column=0, padx=5, pady=10, sticky=NSEW)
 
         columnas = ("id_Producto", "ID_Proveedor", "NombreProveedor", "producto", "precio", "stock", "descripcion")
 
@@ -639,16 +650,30 @@ class Ventana(tb.Window):
         self.TreelistProductosProductos.grid(row=0, column=0)
 
         self.TreelistProductosProductos.heading("id_Producto", text="ID PRODUCTO", anchor=W)
+        self.TreelistProductosProductos.column("id_Producto", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosProductos.heading("ID_Proveedor", text="ID PROVEEDOR", anchor=W)
-        self.TreelistProductosProductos.heading("NombreProveedor", text="NOMBRE PROVEEDOR", anchor=W)
+        self.TreelistProductosProductos.column("ID_Proveedor", width=100, anchor=W, stretch=NO)
+
+
+        self.TreelistProductosProductos.heading("NombreProveedor", text="PROVEEDOR", anchor=W)
+        self.TreelistProductosProductos.column("NombreProveedor", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosProductos.heading("producto", text="PRODUCTO", anchor=W)
+        self.TreelistProductosProductos.column("producto", width=150, anchor=W, stretch=NO)
+
         self.TreelistProductosProductos.heading("precio", text="PRECIO", anchor=W)
+        self.TreelistProductosProductos.column("precio", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosProductos.heading("stock", text="STOCK", anchor=W)
+        self.TreelistProductosProductos.column("stock", width=100, anchor=W, stretch=NO)
+
         self.TreelistProductosProductos.heading("descripcion", text="DESCRIPCIÓN", anchor=W)
+        self.TreelistProductosProductos.column("descripcion", width=100, anchor=W, stretch=NO)
+
 
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
                                                              'producto', 'precio', 'stock', 'descripcion']
-        # Solo apareceran 3 pq la clave es secreta SAPAZO
 
         self.TreelistProductosProductos.bind("<<TreeviewSelect>>", self.activar_boton_modi_elimi_productos)
         # Creando el rico scrollbar
@@ -657,7 +682,6 @@ class Ventana(tb.Window):
         # Configu el scroll
         TreeScrollListProduct.config(command=self.TreelistProductosProductos.yview)
 
-        # Llamar a func mostrar usuarios
         self.MostrarProductos()
 
     def activar_boton_modi_elimi_productos(self, event):
@@ -937,16 +961,24 @@ class Ventana(tb.Window):
     def mostrarHistorial(self):
         for widget in self.frameCenter.winfo_children():
             widget.destroy()
-
         self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id", "fecha_hora", "accion", "usuario"),
                                               height=17, show='headings', bootstyle='danger')
-        self.TreelistHistorial.grid(row=0, column=0)
+        self.TreelistHistorial.grid(row=0, column=0,pady=50)
 
         self.TreelistHistorial.heading("id", text="ID", anchor=W)
-        self.TreelistHistorial.heading("accion", text="ACCIÓN", anchor=W)
-        self.TreelistHistorial.heading("fecha_hora", text="FECHA", anchor=W)
-        self.TreelistHistorial.heading("usuario", text="USUARIO", anchor=W)
+        self.TreelistHistorial.column("id", width=90, anchor=W, stretch=NO)
 
+        self.TreelistHistorial.heading("accion", text="ACCIÓN", anchor=W)
+        self.TreelistHistorial.column("accion", width=230, anchor=W, stretch=NO)
+
+        self.TreelistHistorial.heading("fecha_hora", text="FECHA-HORA", anchor=W)
+        self.TreelistHistorial.column("fecha_hora", width=150, anchor=W, stretch=NO)
+
+        self.TreelistHistorial.heading("usuario", text="USUARIO", anchor=W)
+        self.TreelistHistorial.column("usuario", width=100, anchor=W, stretch=NO)
+        TreeScrollListHistorial = tb.Scrollbar(self.frameCenter, bootstyle='round-success')
+        TreeScrollListHistorial.grid(row=0, column=1,padx=10)
+        TreeScrollListHistorial.config(command=self.TreelistHistorial.yview)
         self.cargarHistorial()
 
     def cargarHistorial(self):
