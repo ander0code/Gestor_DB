@@ -1,13 +1,21 @@
 from Connexion_DB import *
 import sqlite3
+from passlib.context import CryptContext
+
 class Crud_Usuarios:
     def __init__(self):
         self.db = Base_Datos().conexion
         self.miCursor = self.db.cursor()
+        self.contexto = CryptContext(
+            schemes=["pbkdf2_sha256"],
+            default="pbkdf2_sha256",
+            pbkdf2_sha256__default_rounds=30000
+        )
+
 
     def Mostrar_Usuarios(self):
         try:
-            self.miCursor.execute("SELECT * FROM Usuarios")
+            self.miCursor.execute("SELECT Codigo,Nombre,Rol FROM Usuarios")
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos
@@ -27,7 +35,7 @@ class Crud_Usuarios:
 
     def Guardar_Usuario(self,datos):
         try:
-            self.miCursor.execute("INSERT INTO Usuarios VALUES(?,?,?,?)",(datos))
+            self.miCursor.execute("INSERT INTO Usuarios VALUES(?,?,?,?)", datos)
 
             self.db.commit()
             print("agregado exitosamente")
@@ -48,28 +56,35 @@ class Crud_Usuarios:
             datos = self.miCursor.fetchall()
             self.db.close()
             return datos
-    def Modificar_Usuario(self,txtCodeProductoModifyProduct,datosModificarUsuarios):
+
+    def Modificar_Usuario(self, codigo_usuario, datosModificarUsuarios):
         try:
             self.miCursor.execute(
-                "UPDATE Usuarios SET Nombre=?,Clave=?,Rol=? WHERE Codigo="+ txtCodeProductoModifyProduct,
-                datosModificarUsuarios
+                "UPDATE Usuarios SET Nombre=?, Hash=?, Rol=? WHERE Codigo=?",
+                (datosModificarUsuarios[0], datosModificarUsuarios[1], datosModificarUsuarios[2], codigo_usuario)
             )
             self.db.commit()
-            self.db.close()
-            print("actualizado exitosamente")
+            print("Actualizado exitosamente")
             return True
         except sqlite3.Error as e:
-            print("problemas {} ".format(e))
+            print("Problemas: {}".format(e))
+            return False
 
-    def Verifica_Usuario(self,consulta):
+    def Verifica_Usuario(self, codigo_usuario, contrasena_confirmacion):
         try:
-            self.miCursor.execute("SELECT Clave FROM Usuarios WHERE Codigo=?",(consulta,))
-            datos = self.miCursor.fetchone()
-            return datos
+            self.miCursor.execute("SELECT Hash FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
+            hash_encriptado = self.miCursor.fetchone()
+
+            if hash_encriptado and self.contexto.verify(contrasena_confirmacion, hash_encriptado[0]):
+                return True
+            else:
+                return False
+
         except sqlite3.Error as e:
-            print(f"Error en mostrar proveedor: {e}")
-            return []
-    def Borrar_Usuario(self,id_usuario):
+            print(f"Error en verificar usuario: {e}")
+            return False
+
+    def Borrar_Usuario(self, id_usuario):
         try:
             self.miCursor.execute("DELETE FROM Usuarios WHERE Codigo=?", (id_usuario,))
             self.db.commit()
@@ -77,3 +92,7 @@ class Crud_Usuarios:
             return True
         except sqlite3.Error as e:
             print("problemas {} ".format(e))
+            return False
+        finally:
+            self.db.close()
+

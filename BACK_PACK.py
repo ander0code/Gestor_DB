@@ -13,8 +13,9 @@ import sqlite3
 from pathlib import Path
 from tkinter import simpledialog
 from tkinter import filedialog
+from passlib.context import CryptContext
 # pip install openpyxl <-
-
+# pip install passlib
 
 class Ventana(tb.Window):
     global app
@@ -24,6 +25,11 @@ class Ventana(tb.Window):
         super().__init__()
         self.ventanaLogin()
         self.rol_usuario_actual = None
+        self.contexto = CryptContext(
+            schemes=["pbkdf2_sha256"],
+            default="pbkdf2_sha256",
+            pbkdf2_sha256__default_rounds=30000
+        )
 
     def ventanaLogin(self):
         self.frame_login = Frame(self)
@@ -101,7 +107,7 @@ class Ventana(tb.Window):
 
         btnReportes = ttk.Button(self.frameLeft, text='Reportes', width=15,
                                  command=lambda: [self.mostrarHistorial(),
-                                                  Centrar_ventana(app,780,400)])
+                                                  Centrar_ventana(app,790,400)])
         btnReportes.grid(row=4, column=0, padx=10, pady=10)
 
         btnExportarDB = ttk.Button(self.frameLeft, text='Exportar Tabla', width=15,
@@ -134,10 +140,10 @@ class Ventana(tb.Window):
                 for row in datosLogueo:
                     codUsuario = row[0]
                     nomUsuario = row[1]
-                    claUsuario = row[2]
-                    rolUsuario = row[3]
+                    rolUsuario = row[2]
+                    Hash = row[3]
 
-                if nomUsuario == self.txtUsuario.get() and claUsuario == self.txtClave.get():
+                if nomUsuario == self.txtUsuario.get() and self.contexto.verify(claveUsuario,Hash):
                     self.rol_usuario_actual = rolUsuario
 
                     self.frame_login.pack_forget()
@@ -148,10 +154,12 @@ class Ventana(tb.Window):
                 self.txtClave.delete(0, "end")
                 self.set_placeholder(self.txtUsuario, "Usuario")
                 self.set_placeholder(self.txtClave, "Contraseña")
-                messagebox.showerror("INICIO SECION", "DATOS INCORRECTOS")
+                messagebox.showerror("INICIO SESIÓN", "DATOS INCORRECTOS")
 
         except sqlite3.Error as e:
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
+
+
     # ---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores=False):
         self.frameListaUsuarios = Frame(self.frameCenter)
@@ -175,7 +183,7 @@ class Ventana(tb.Window):
         self.lblframeTreeListUsu = LabelFrame(self.frameListaUsuarios)
         self.lblframeTreeListUsu.grid(row=2, column=0, padx=10, pady=10, sticky=NSEW)
 
-        columnas = ("codigo", "nombre", "clave", "rol")
+        columnas = ("codigo", "nombre", "rol")
 
         self.TreelistUsuarios = tb.Treeview(self.lblframeTreeListUsu,
                                             columns=columnas, height=17,
@@ -184,7 +192,6 @@ class Ventana(tb.Window):
 
         self.TreelistUsuarios.heading("codigo", text="CODIGO", anchor=W)
         self.TreelistUsuarios.heading("nombre", text="NOMBRE", anchor=W)
-        self.TreelistUsuarios.heading("clave", text="CLAVE", anchor=W)
         self.TreelistUsuarios.heading("rol", text="ROL", anchor=W)
 
         self.TreelistUsuarios['displaycolumns'] = ['codigo', 'nombre', 'rol']
@@ -193,10 +200,10 @@ class Ventana(tb.Window):
         else:
             self.TreelistUsuarios.bind("<<TreeviewSelect>>", self.activar_boton_Modificar_Eliminar)
 
-        TreeScrollListUsu = tb.Scrollbar(self.frameListaUsuarios, bootstyle='round-success')
-        TreeScrollListUsu.grid(row=2, column=1,)
+            TreeScrollListUsu = tb.Scrollbar(self.frameListaUsuarios, bootstyle='round-success')
+            TreeScrollListUsu.grid(row=2, column=1)
             # Configu el scroll
-        TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
+            TreeScrollListUsu.config(command=self.TreelistUsuarios.yview)
 
         if mostrar_proveedores:
 
@@ -252,7 +259,7 @@ class Ventana(tb.Window):
                 self.TreelistUsuarios.delete(elementos)
 
             for row in datos:
-                self.TreelistUsuarios.insert("", "end", text=row[0], values=(row[0], row[1], row[2], row[3]))
+                self.TreelistUsuarios.insert("", "end", text=row[0], values=(row[0], row[1], row[2]))
 
         except sqlite3.Error as e:
 
@@ -307,29 +314,38 @@ class Ventana(tb.Window):
         self.txtNameNewUser.focus()
 
     def guardarUsuario(self):
-
         if self.txtCodeNewUser.get() == "" or self.txtNameNewUser.get() == "" or self.txtClaveNewUser.get() == "":
             messagebox.showwarning('Guardando usuarios', 'Algún campo no es válido, por favor revisar')
             return
         try:
-
             db = Crud_Usuarios()
 
-            datosGuardarUsuarios = (self.txtCodeNewUser.get(),
-                                    self.txtNameNewUser.get(),
-                                    self.txtClaveNewUser.get(),
-                                    self.txtRolNewUser.get())
+            # Obtén los datos del usuario desde las entradas del formulario
+            codigoUsuario = self.txtCodeNewUser.get()
+            nombreUsuario = self.txtNameNewUser.get()
+            claveUsuario = self.txtClaveNewUser.get()
+            rolUsuario = self.txtRolNewUser.get()
 
+            # Genera un hash para la contraseña
+            contexto = CryptContext(
+                schemes=["pbkdf2_sha256"],
+                default="pbkdf2_sha256",
+                pbkdf2_sha256__default_rounds=30000
+            )
+            claveEncriptada = contexto.hash(claveUsuario)
+
+            # Guarda los datos en la base de datos
+            datosGuardarUsuarios = (codigoUsuario, nombreUsuario, rolUsuario,claveEncriptada)
             db.Guardar_Usuario(datosGuardarUsuarios)
 
             messagebox.showinfo('Guardando Usuarios', "Usuario Guardado Correctamente")
 
+            # Cierra la ventana después de guardar el usuario
             self.frameNewUser.destroy()
             self.ventanaListaUsuarios()
-            # Cerrar la conexi
 
-        except:
-            messagebox.showerror("Guardando Usuarios", "Ocurrió un error al Guardar Usuario")
+        except Exception as e:
+            messagebox.showerror("Guardando Usuarios", f"Ocurrió un error al Guardar Usuario: {e}")
 
     def ultimoUsuario(self):
         try:
@@ -437,8 +453,8 @@ class Ventana(tb.Window):
         self.txtCodeModifyUser.insert(0, self.ValModUsu[0])
         self.txtCodeModifyUser.config(state='readonly')
         self.txtNameModifyUser.insert(0, self.ValModUsu[1])
-        self.txtClaveModifyUser.insert(0, self.ValModUsu[2])
-        self.txtRolModifyUser.insert(0, self.ValModUsu[3])
+        self.txtClaveModifyUser.insert(0, "Contraseña Oculta")
+        self.txtRolModifyUser.insert(0, self.ValModUsu[2])
         self.txtRolModifyUser.config(state='readonly')
 
     def modificarUsuario(self):
@@ -448,25 +464,29 @@ class Ventana(tb.Window):
             return
 
         try:
+
+            nueva_contrasena_hasheada = self.contexto.hash(self.txtClaveModifyUser.get())
+
+
             db = Crud_Usuarios()
-            datosModificarUsuarios = (self.txtNameModifyUser.get(),
-                                      self.txtClaveModifyUser.get(),
-                                      self.txtRolModifyUser.get())
-            db.Modificar_Usuario(self.txtCodeModifyUser.get(),datosModificarUsuarios)
+            datosModificarUsuarios = (
+            self.txtNameModifyUser.get(), nueva_contrasena_hasheada, self.txtRolModifyUser.get())
+            db.Modificar_Usuario(self.txtCodeModifyUser.get(), datosModificarUsuarios)
+
             messagebox.showinfo('Modificar Usuarios', "Usuario Modificado Correctamente")
 
+            # Actualizar la información en la interfaz
             self.ValModUsu = self.TreelistUsuarios.item(
                 self.usuarioSeleccionado, text='',
                 values=(self.txtCodeModifyUser.get(),
                         self.txtNameModifyUser.get(),
-                        self.txtClaveModifyUser.get(),
+                        "",
                         self.txtRolModifyUser.get(),))
 
             self.registrar_en_historial(f"{self.txtNameModifyUser.get()} ha sido modificado por: ",
                                         self.txtUsuario.get())
             self.frameModifyUser.destroy()
             self.ventanaListaUsuarios()
-
 
         except:
             messagebox.showerror("Modificar Usuarios", "Ocurrió un error al Modificar Usuario")
@@ -482,7 +502,7 @@ class Ventana(tb.Window):
 
         codigo_usuario = valores_usuario[0]
         nombre_usuario = valores_usuario[1]
-        rol_usuario = valores_usuario[3]
+        rol_usuario = valores_usuario[2]
 
         # Verificar que el usuario tenga permiso para borrar
         if not self.es_administrador_actual():
@@ -495,12 +515,12 @@ class Ventana(tb.Window):
             return
 
         # Pedir confirmación de contraseña
-        contraseña_confirmacion = simpledialog.askstring(
+        contrasena_confirmacion = simpledialog.askstring(
             'Confirmar Eliminación',
             f'Ingrese la contraseña para confirmar la eliminación del usuario {nombre_usuario}:', show='*'
         )
 
-        if not contraseña_confirmacion:
+        if not contrasena_confirmacion:
             return  # El usuario cerró la ventana de confirmación o no ingresó contraseña
 
         try:
@@ -508,11 +528,11 @@ class Ventana(tb.Window):
             db = Crud_Usuarios()
 
             # Consultar DB y verificar la contraseña
-            resultado = db.Verifica_Usuario(codigo_usuario, )
+            resultado = db.Verifica_Usuario(codigo_usuario, contrasena_confirmacion)
 
-            if resultado and resultado[0] == contraseña_confirmacion:
+            if resultado:
                 # Eliminar el usuario
-                db.Borrar_Usuario(codigo_usuario, )
+                db.Borrar_Usuario(codigo_usuario)
                 # Aplicar Cambios
                 messagebox.showinfo('Borrar Usuario', "Usuario Borrado Correctamente")
                 # Cerrar la conexion
@@ -535,7 +555,7 @@ class Ventana(tb.Window):
         self.frameListaProductos = Toplevel(self)
         self.frameListaProductos.title('Lista de Productos')
         self.frameListaProductos.resizable(False, False)
-        Centrar_ventana(self.frameListaProductos,650,340)
+        Centrar_ventana(self.frameListaProductos,1250,340)
 
         self.frameListaProductos.grab_set()
         self.lblframeBotonesListProd = LabelFrame(self.frameListaProductos)
@@ -549,22 +569,11 @@ class Ventana(tb.Window):
                                                 bootstyle='info')
         self.TreelistProductosPro.grid(row=0, column=0)
         self.TreelistProductosPro.heading("ID Producto", text="ID PRODUCTO", anchor=W)
-        self.TreelistProductosPro.column("ID Producto", width=100, anchor=W, stretch=NO)
-
-        self.TreelistProductosPro.heading("Nombre_proveedor", text="PROVEEDOR", anchor=W)
-        self.TreelistProductosPro.column("Nombre_proveedor", width=100, anchor=W, stretch=NO)
-
-        self.TreelistProductosPro.heading("Nombre del Producto", text="PRODUCTO", anchor=W)
-        self.TreelistProductosPro.column("Nombre del Producto", width=100, anchor=W, stretch=NO)
-
+        self.TreelistProductosPro.heading("Nombre_proveedor", text="NOMBRE PROVEEDOR", anchor=W)
+        self.TreelistProductosPro.heading("Nombre del Producto", text="NOMBRE PRODUCTO", anchor=W)
         self.TreelistProductosPro.heading("Precio", text="PRECIO", anchor=W)
-        self.TreelistProductosPro.column("Precio", width=100, anchor=W, stretch=NO)
-
         self.TreelistProductosPro.heading("Stock", text="STOCK", anchor=W)
-        self.TreelistProductosPro.column("Stock", width=100, anchor=W, stretch=NO)
-
         self.TreelistProductosPro.heading("Descripción", text="DESCRIPCIÓN", anchor=W)
-        self.TreelistProductosPro.column("Descripción", width=100, anchor=W, stretch=NO)
 
         self.TreelistProductosPro['displaycolumns'] = ['ID Producto', 'Nombre_proveedor', 'Nombre del Producto',
                                                        'Precio', 'Stock', 'Descripción']
@@ -655,7 +664,6 @@ class Ventana(tb.Window):
         self.TreelistProductosProductos.heading("ID_Proveedor", text="ID PROVEEDOR", anchor=W)
         self.TreelistProductosProductos.column("ID_Proveedor", width=100, anchor=W, stretch=NO)
 
-
         self.TreelistProductosProductos.heading("NombreProveedor", text="PROVEEDOR", anchor=W)
         self.TreelistProductosProductos.column("NombreProveedor", width=100, anchor=W, stretch=NO)
 
@@ -670,7 +678,6 @@ class Ventana(tb.Window):
 
         self.TreelistProductosProductos.heading("descripcion", text="DESCRIPCIÓN", anchor=W)
         self.TreelistProductosProductos.column("descripcion", width=100, anchor=W, stretch=NO)
-
 
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
                                                              'producto', 'precio', 'stock', 'descripcion']
@@ -963,7 +970,7 @@ class Ventana(tb.Window):
             widget.destroy()
         self.TreelistHistorial = ttk.Treeview(self.frameCenter, columns=("id", "fecha_hora", "accion", "usuario"),
                                               height=17, show='headings', bootstyle='danger')
-        self.TreelistHistorial.grid(row=0, column=0,pady=50)
+        self.TreelistHistorial.grid(row=0, column=0, pady=50)
 
         self.TreelistHistorial.heading("id", text="ID", anchor=W)
         self.TreelistHistorial.column("id", width=90, anchor=W, stretch=NO)
@@ -977,7 +984,7 @@ class Ventana(tb.Window):
         self.TreelistHistorial.heading("usuario", text="USUARIO", anchor=W)
         self.TreelistHistorial.column("usuario", width=100, anchor=W, stretch=NO)
         TreeScrollListHistorial = tb.Scrollbar(self.frameCenter, bootstyle='round-success')
-        TreeScrollListHistorial.grid(row=0, column=1,padx=10)
+        TreeScrollListHistorial.grid(row=0, column=1, padx=10)
         TreeScrollListHistorial.config(command=self.TreelistHistorial.yview)
         self.cargarHistorial()
 
