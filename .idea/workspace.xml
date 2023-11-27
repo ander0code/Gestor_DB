@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cc9b57d7-b073-4b98-a08c-42fa1698ab60" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Logo.png" afterDir="false" />
+    <list default="true" id="20be50e0-cc12-4286-a02f-faa5d59a3227" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/Gestor_DB.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Gestor_DB.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BACK_PACK.py" beforeDir="false" afterPath="$PROJECT_DIR$/BACK_PACK.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/whatislove.db" beforeDir="false" afterPath="$PROJECT_DIR$/whatislove.db" afterDir="false" />
     </list>
@@ -14,58 +15,40 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 3
+  &quot;associatedIndex&quot;: 6
 }</component>
-  <component name="ProjectId" id="2YQ8DUEIgmtgPJ2hjCp68UpY5jk" />
+  <component name="ProjectId" id="2YgYnRZ0jorsxGhYiA9mRzgnzF2" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/pc1/Desktop/XD1/Gestor_DB&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
-  <component name="RunManager">
-    <configuration name="BACK_PACK" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <module name="Gestor_DB" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.11 (Gestor_DB) (2)" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/BACK_PACK.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-  </component>
+}]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="cc9b57d7-b073-4b98-a08c-42fa1698ab60" name="Changes" comment="" />
-      <created>1700446322592</created>
+      <changelist id="20be50e0-cc12-4286-a02f-faa5d59a3227" name="Changes" comment="" />
+      <created>1700948880417</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1700446322592</updated>
+      <updated>1700948880417</updated>
     </task>
     <servers />
   </component>
