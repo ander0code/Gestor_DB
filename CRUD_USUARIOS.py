@@ -1,16 +1,11 @@
 from Connexion_DB import *
 import sqlite3
-from passlib.context import CryptContext
+import bcrypt
 
 class Crud_Usuarios:
     def __init__(self):
         self.db = Base_Datos().conexion
         self.miCursor = self.db.cursor()
-        self.contexto = CryptContext(
-            schemes=["pbkdf2_sha256"],
-            default="pbkdf2_sha256",
-            pbkdf2_sha256__default_rounds=30000
-        )
 
 
     def Mostrar_Usuarios(self):
@@ -36,7 +31,6 @@ class Crud_Usuarios:
     def Guardar_Usuario(self,datos):
         try:
             self.miCursor.execute("INSERT INTO Usuarios VALUES(?,?,?,?)", datos)
-
             self.db.commit()
             print("agregado exitosamente")
             return True
@@ -75,7 +69,7 @@ class Crud_Usuarios:
             self.miCursor.execute("SELECT Hash FROM Usuarios WHERE Codigo=?", (codigo_usuario,))
             hash_encriptado = self.miCursor.fetchone()
 
-            if hash_encriptado and self.contexto.verify(contrasena_confirmacion, hash_encriptado[0]):
+            if hash_encriptado and self.verificar_contrasena(contrasena_confirmacion, hash_encriptado[0]):
                 return True
             else:
                 return False
@@ -83,6 +77,9 @@ class Crud_Usuarios:
         except sqlite3.Error as e:
             print(f"Error en verificar usuario: {e}")
             return False
+    def verificar_contrasena(self,contrasena, hashed):
+        contrasena_encoded = contrasena.encode('utf-8')
+        return bcrypt.checkpw(contrasena_encoded, hashed)
 
     def Borrar_Usuario(self, id_usuario):
         try:

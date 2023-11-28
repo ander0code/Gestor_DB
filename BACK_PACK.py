@@ -13,7 +13,7 @@ import sqlite3
 from pathlib import Path
 from tkinter import simpledialog
 from tkinter import filedialog
-from passlib.context import CryptContext
+import bcrypt
 # pip install openpyxl <-
 # pip install passlib
 
@@ -25,12 +25,6 @@ class Ventana(tb.Window):
         super().__init__()
         self.ventanaLogin()
         self.rol_usuario_actual = None
-        self.contexto = CryptContext(
-            schemes=["pbkdf2_sha256"],
-            default="pbkdf2_sha256",
-            pbkdf2_sha256__default_rounds=30000
-        )
-
     def ventanaLogin(self):
         self.frame_login = Frame(self)
         self.frame_login.pack()
@@ -128,7 +122,6 @@ class Ventana(tb.Window):
     def BtnSalir(self):
         self.destroy()
     def logueo(self):
-
         try:
             db = Login()
             nombreUsuario = self.txtUsuario.get()
@@ -143,7 +136,7 @@ class Ventana(tb.Window):
                     rolUsuario = row[2]
                     Hash = row[3]
 
-                if nomUsuario == self.txtUsuario.get() and self.contexto.verify(claveUsuario,Hash):
+                if nomUsuario == self.txtUsuario.get() and self.verificar_contrasena(claveUsuario,Hash):
                     self.rol_usuario_actual = rolUsuario
 
                     self.frame_login.pack_forget()
@@ -159,6 +152,9 @@ class Ventana(tb.Window):
         except sqlite3.Error as e:
             messagebox.showerror("Acceso", f"Ocurrió un error: {e}")
 
+    def verificar_contrasena(self,contrasena, hashed):
+        contrasena_encoded = contrasena.encode('utf-8')
+        return bcrypt.checkpw(contrasena_encoded, hashed)
 
     # ---------------USUARIOS------------
     def ventanaListaUsuarios(self, mostrar_proveedores=False):
@@ -327,12 +323,7 @@ class Ventana(tb.Window):
             rolUsuario = self.txtRolNewUser.get()
 
             # Genera un hash para la contraseña
-            contexto = CryptContext(
-                schemes=["pbkdf2_sha256"],
-                default="pbkdf2_sha256",
-                pbkdf2_sha256__default_rounds=30000
-            )
-            claveEncriptada = contexto.hash(claveUsuario)
+            claveEncriptada = self.encriptar_contrasena(claveUsuario)
 
             # Guarda los datos en la base de datos
             datosGuardarUsuarios = (codigoUsuario, nombreUsuario, rolUsuario,claveEncriptada)
@@ -347,6 +338,11 @@ class Ventana(tb.Window):
         except Exception as e:
             messagebox.showerror("Guardando Usuarios", f"Ocurrió un error al Guardar Usuario: {e}")
 
+    def encriptar_contrasena(self,contrasena):
+        contrasena_encoded = contrasena.encode('utf-8')
+        hashed = bcrypt.hashpw(contrasena_encoded, bcrypt.gensalt())
+        print(hashed)
+        return hashed
     def ultimoUsuario(self):
         try:
             db = Crud_Usuarios()
@@ -465,7 +461,7 @@ class Ventana(tb.Window):
 
         try:
 
-            nueva_contrasena_hasheada = self.contexto.hash(self.txtClaveModifyUser.get())
+            nueva_contrasena_hasheada = self.encriptar_contrasena(self.txtClaveModifyUser.get())
 
 
             db = Crud_Usuarios()
