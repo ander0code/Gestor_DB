@@ -432,7 +432,7 @@ class Ventana(tb.Window):
 
             lblRolModifyUser = Label(lblModifyUser, text='Rol')
             lblRolModifyUser.grid(row=3, column=0, padx=10, pady=10, sticky=E)
-            self.txtRolModifyUser = ttk.Combobox(lblModifyUser, values=('Administrador', 'Proveedor', 'Vendedor'),
+            self.txtRolModifyUser = ttk.Combobox(lblModifyUser, values=('Administrador', 'Proveedor'),
                                                  width=38)
             self.txtRolModifyUser.grid(row=3, column=1, padx=10, pady=10)
 
@@ -453,7 +453,7 @@ class Ventana(tb.Window):
         self.txtCodeModifyUser.insert(0, self.ValModUsu[0])
         self.txtCodeModifyUser.config(state='readonly')
         self.txtNameModifyUser.insert(0, self.ValModUsu[1])
-        self.txtClaveModifyUser.insert(0, "Contraseña Oculta")
+        self.txtClaveModifyUser.insert(0, "nueva contraseña")
         self.txtRolModifyUser.insert(0, self.ValModUsu[2])
         self.txtRolModifyUser.config(state='readonly')
 
@@ -676,7 +676,7 @@ class Ventana(tb.Window):
         self.TreelistProductosProductos.heading("stock", text="STOCK", anchor=W)
         self.TreelistProductosProductos.column("stock", width=100, anchor=W, stretch=NO)
 
-        self.TreelistProductosProductos.heading("descripcion", text="DESCRIPCIÓN", anchor=W)
+        self.TreelistProductosProductos.heading("descripcion", text="CATEGORIA", anchor=W)
         self.TreelistProductosProductos.column("descripcion", width=100, anchor=W, stretch=NO)
 
         self.TreelistProductosProductos['displaycolumns'] = ['id_Producto', 'NombreProveedor',
@@ -851,7 +851,7 @@ class Ventana(tb.Window):
             lblCodeModifyProduct = Label(lblModifyProduct, text='Nuevo Codigo de provedor')
             lblCodeModifyProduct.grid(row=1, column=0, padx=10, pady=10, sticky=E)
             selecionProveedor = StringVar()
-            self.txtCodeProveModifyProduct = ttk.Combobox(lblModifyProduct, values=self.datos,
+            self.txtCodeProveModifyProduct = ttk.Combobox(lblModifyProduct, values=self.datos,state='readonly',
                                                           textvariable=selecionProveedor, width=40)
             self.txtCodeProveModifyProduct.grid(row=1, column=1, padx=10, pady=10)
 

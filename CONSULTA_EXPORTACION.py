@@ -12,13 +12,16 @@ class Consulta_Exportacion:
 
                 return datos
             elif dato == "Producto":
-                 datos=("SELECT Usuarios.Nombre AS Nombre_Provedor,"
-                        "Producto.Codigo_Proveedor,Producto.idProducto,"
-                        "Producto.nombreProducto,Producto.precio,"
-                        "Producto.stock,"
-                        "Producto.descripcion "
+                 datos=("SELECT Usuarios.Nombre AS Proveedor, "
+                        "Producto.Codigo_Proveedor AS IdProveedor, "
+                        "Producto.nombreProducto, "
+                        "Producto.idProducto, "
+                        "Producto.precio, "
+                        "Producto.stock, "
+                        "Producto.descripcion AS Categoria "
                         "FROM Producto "
-                        "JOIN Usuarios ON Producto.Codigo_Proveedor = Usuarios.Codigo ")
+                        "JOIN Usuarios ON Producto.Codigo_Proveedor = Usuarios.Codigo"
+                        )
                  return datos
 
         except sqlite3.Error as e:
